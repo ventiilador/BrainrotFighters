@@ -1,6 +1,6 @@
 import pygame
 from functions import position, size, get_resolution
-from components.CharacterSelector import CharacterSelector, CharacterSelectorWASD
+from components.CharacterSelector import CharacterSelector, CharacterSelectorWASD, CharacterSelectorIJKL
 
 class CharacterSelection:
     def __init__(self, game):
@@ -28,10 +28,19 @@ class CharacterSelection:
         self.player1_title = players_font.render("Player 1 (WASD)", True, (0, 0, 0))
         self.player1_title_rect = self.player1_title.get_rect()
         self.player1_title_rect.center = position(25, 25)
-        self.player2_title = players_font.render("Player 2 (↑←↓→)", True, (0, 0, 0))
+        player_select_font = pygame.font.Font("assets/fonts/MonkeyLand.otf", 36)
+        self.player1_select_text = player_select_font.render("'E' to select", True, (0, 0, 0))
+        self.player1_select_text_rect = self.player1_select_text.get_rect()
+        self.player1_select_text_rect.center = position(25, 35)
+        self.player2_title = players_font.render("Player 2 (IJKL)", True, (0, 0, 0))
         self.player2_title_rect = self.player2_title.get_rect()
         self.player2_title_rect.center = position(75, 25)
-        self.character_selector = CharacterSelectorWASD(self.game, position(25, 50), size(30, 15), 1, 4)
+        self.player2_select_text = player_select_font.render("'O' to select", True, (0, 0, 0))
+        self.player2_select_text_rect = self.player2_select_text.get_rect()
+        self.player2_select_text_rect.center = position(75, 35)
+        self.character_selector_wasd = CharacterSelectorWASD(self.game, position(25, 50), size(30, 15), 1, 4)
+        self.character_selector_ijkl = CharacterSelectorIJKL(self.game, position(75, 50), size(30, 15), 1, 4)
+        
 
     def draw(self, screen):
         """
@@ -42,9 +51,16 @@ class CharacterSelection:
         screen.blit(self.title, self.title_rect)
         pygame.draw.rect(screen, (255, 180, 0), self.player1_title_rect.inflate(20, 15))
         screen.blit(self.player1_title, self.player1_title_rect)
+        pygame.draw.rect(screen, (255, 180, 0), self.player1_select_text_rect.inflate(20, 15))
+        screen.blit(self.player1_select_text, self.player1_select_text_rect)
         pygame.draw.rect(screen, (255, 180, 0), self.player2_title_rect.inflate(20, 15))
         screen.blit(self.player2_title, self.player2_title_rect)
-        self.character_selector.draw(screen)
+        pygame.draw.rect(screen, (255, 180, 0), self.player2_select_text_rect.inflate(20, 15))
+        screen.blit(self.player2_select_text, self.player2_select_text_rect)
+        
+
+        self.character_selector_wasd.draw(screen)
+        self.character_selector_ijkl.draw(screen)
 
     def manage_events(self):
         """
@@ -54,4 +70,8 @@ class CharacterSelection:
             self.game.sound_manager.play_song("GameSong", -1)
             self.music_played = True
         
-        self.character_selector.check_input()
+        if self.character_selector_wasd.character_selected and self.character_selector_ijkl.character_selected:
+            self.status = False
+        
+        self.character_selector_wasd.check_input()
+        self.character_selector_ijkl.check_input()

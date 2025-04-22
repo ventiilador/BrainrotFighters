@@ -37,7 +37,7 @@ class MapRandomizer:
                            [pygame.transform.scale(pygame.image.load("assets/images/map_randomizer/florence.png").convert(), map_size),"florence"]]
         self.maps = []
         x = position_x(100) - size_x(50) // 2
-        for _ in range(30):
+        for _ in range(100):
             map = self.map_images[randint(0, len(self.map_images) - 1)]
             image, title = map[0], map[1]
             rect = image.get_rect()
@@ -84,6 +84,7 @@ class MapRandomizer:
         if self.show_message and pygame.time.get_ticks() - self.start_time > 3000:
             self.status = False
             self.game.character_selection.status = True
+            self.game.fight.map = self.winner_map_image_usable
 
 
     def check_result(self):
@@ -106,7 +107,7 @@ class MapRandomizer:
         if self.velocity > 0:  
             for i in range(len(self.maps)):
                 self.maps[i][1].x += self.velocity * dt
-            self.velocity -= 5
+            self.velocity -= 550 * dt
         if self.winner_map:
             if self.winner_map_rect.width < size_x(50) or self.winner_map_rect.height < size_y(50):
                 center = self.winner_map_rect.center

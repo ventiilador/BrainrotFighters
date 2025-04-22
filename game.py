@@ -4,6 +4,7 @@ from scenarios.MainMenu import MainMenu
 from scenarios.ConfigMenu import ConfigMenu
 from scenarios.CharacterSelection import CharacterSelection
 from scenarios.MapRandomizer import MapRandomizer
+from scenarios.Fight import Fight
 from SoundManager import SoundManager
 
 
@@ -28,6 +29,7 @@ class Game:
         print("🗺️  Map Randomizer Loaded Successfully!")
         self.character_selection = CharacterSelection(self)
         print("🕴️  Character Selection Loaded Successfully!")
+        self.fight = Fight(self)
 
         # Fps / bucle Conditionals
         self.clock = pygame.time.Clock()
@@ -53,6 +55,7 @@ class Game:
             self.main_menu.create_display_components()
             self.config_menu.create_display_components()
             self.map_randomizer.create_display_components()
+            self.character_selection.create_display_components()
             self.last_update_display_time = current_time
             print("🔁 Display Components Reloaded Successfully!")
 

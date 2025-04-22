@@ -1,12 +1,12 @@
 {
     "Config": {
         "SongsVolume": 0.0,
-        "SoundsVolume": 0.0,
+        "SoundsVolume": 0.375,
         "Resolution": [
             1280,
             720
         ],
-        "Fps": 144,
+        "Fps": 60,
         "Fullscreen": false,
         "Showfps": true
     }
