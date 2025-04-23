@@ -9,7 +9,7 @@ class MapRandomizer:
 
         # Control variables +
         self.status = False
-        self.velocity = randint(3000, 5000)
+        self.velocity = 0 #randint(3000, 5000)
         self.winner_map = None
         self.show_message = False
         self.message_started = False
@@ -85,6 +85,7 @@ class MapRandomizer:
             self.status = False
             self.game.character_selection.status = True
             self.game.fight.map = self.winner_map_image_usable
+            self.game.fight.create_display_components()
 
 
     def check_result(self):

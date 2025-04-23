@@ -2,7 +2,7 @@ import pygame
 from functions import size as sz
 
 class CharacterSelector:
-    def __init__(self, game, position:tuple, size:tuple, rows, columns):
+    def __init__(self, game, position:tuple, size:tuple, rows, columns, controls:tuple):
         self.game = game
         self.rect = pygame.rect.Rect(0, 0, size[0], size[1])
         self.rect.center = position
@@ -28,7 +28,9 @@ class CharacterSelector:
         self.check_image_rect.center = (position[0], position[1] + size[1] * 1.5)
         self.character_selected = False
         self.check_last_time = 0
-
+        self.current_x = 0
+        self.current_y = 0
+        self.controls = controls
     
     def draw(self, screen):
         pygame.draw.rect(screen, (255,180,0), self.rect.inflate(20, 20))
@@ -41,60 +43,32 @@ class CharacterSelector:
             screen.blit(self.check_image, self.check_image_rect)
     
     def check_input(self):
-        pass
-
-class CharacterSelectorWASD(CharacterSelector):
-    def __init__(self, game, position, size, rows, columns):
-        super().__init__(game, position, size, rows, columns)
-    
-    def check_input(self):
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
         if not self.character_selected:
-            if keys[pygame.K_w] and self.cursor_rect.center[1] - self.slot_size[1] >= self.rect.top and current_time - self.cursor_last_time > 200:
+            if keys[self.controls[0]] and self.cursor_rect.center[1] - self.slot_size[1] >= self.rect.top and current_time - self.cursor_last_time > 200:
                 self.cursor_rect.y -= self.slot_size[1]
                 self.game.sound_manager.play_sound("Switch")
+                self.current_y -= 1
                 self.cursor_last_time = current_time
-            if keys[pygame.K_a] and self.cursor_rect.center[0] - self.slot_size[0] >= self.rect.left and current_time - self.cursor_last_time > 200:
+            if keys[self.controls[1]] and self.cursor_rect.center[0] - self.slot_size[0] >= self.rect.left and current_time - self.cursor_last_time > 200:
                 self.cursor_rect.x -= self.slot_size[0]
                 self.game.sound_manager.play_sound("Switch")
+                self.current_x -= 1
                 self.cursor_last_time = current_time
-            if keys[pygame.K_s] and self.cursor_rect.center[1] + self.slot_size[1] <= self.rect.bottom and current_time - self.cursor_last_time > 200:
+            if keys[self.controls[2]] and self.cursor_rect.center[1] + self.slot_size[1] <= self.rect.bottom and current_time - self.cursor_last_time > 200:
                 self.cursor_rect.y += self.slot_size[1]
                 self.game.sound_manager.play_sound("Switch")
+                self.current_y += 1
                 self.cursor_last_time = current_time
-            if keys[pygame.K_d] and self.cursor_rect.center[0] + self.slot_size[0] <= self.rect.right and current_time - self.cursor_last_time > 200:
+            if keys[self.controls[3]] and self.cursor_rect.center[0] + self.slot_size[0] <= self.rect.right and current_time - self.cursor_last_time > 200:
                 self.cursor_rect.x += self.slot_size[0]
                 self.game.sound_manager.play_sound("Switch")
+                self.current_x += 1
                 self.cursor_last_time = current_time
-        if keys[pygame.K_e] and current_time - self.check_last_time > 200:
+        if keys[self.controls[4]] and current_time - self.check_last_time > 200:
             self.character_selected = False if self.character_selected else True
             self.check_last_time = current_time
 
-class CharacterSelectorIJKL(CharacterSelector):
-    def __init__(self, game, position, size, rows, columns):
-        super().__init__(game, position, size, rows, columns)
-    
-    def check_input(self):
-        keys = pygame.key.get_pressed()
-        current_time = pygame.time.get_ticks()
-        if not self.character_selected:
-            if keys[pygame.K_i] and self.cursor_rect.center[1] - self.slot_size[1] >= self.rect.top and current_time - self.cursor_last_time > 200:
-                self.cursor_rect.y -= self.slot_size[1]
-                self.game.sound_manager.play_sound("Switch")
-                self.cursor_last_time = current_time
-            if keys[pygame.K_j] and self.cursor_rect.center[0] - self.slot_size[0] >= self.rect.left and current_time - self.cursor_last_time > 200:
-                self.cursor_rect.x -= self.slot_size[0]
-                self.game.sound_manager.play_sound("Switch")
-                self.cursor_last_time = current_time
-            if keys[pygame.K_k] and self.cursor_rect.center[1] + self.slot_size[1] <= self.rect.bottom and current_time - self.cursor_last_time > 200:
-                self.cursor_rect.y += self.slot_size[1]
-                self.game.sound_manager.play_sound("Switch")
-                self.cursor_last_time = current_time
-            if keys[pygame.K_l] and self.cursor_rect.center[0] + self.slot_size[0] <= self.rect.right and current_time - self.cursor_last_time > 200:
-                self.cursor_rect.x += self.slot_size[0]
-                self.game.sound_manager.play_sound("Switch")
-                self.cursor_last_time = current_time
-        if keys[pygame.K_o] and current_time - self.check_last_time > 200:
-            self.character_selected = False if self.character_selected else True
-            self.check_last_time = current_time
+    def get_character_name(self):
+        return self.characters[self.current_x][1]

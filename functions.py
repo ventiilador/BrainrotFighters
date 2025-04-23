@@ -1,4 +1,5 @@
 import json
+import pygame
 
 """
 In this module i create the functions that i need usually
@@ -99,3 +100,8 @@ def set_showfps(value):
     data["Config"]["Showfps"] = value
     with open("data.json", "w") as file:
         json.dump(data, file, indent=4)
+
+def load_sprites(path_pattern: str, count: int, size: tuple):
+    """Load and scale a sequence of sprites from a formatted file path."""
+    return tuple(pygame.transform.scale(pygame.image.load(path_pattern.format(i + 1)), size)
+                 for i in range(count))

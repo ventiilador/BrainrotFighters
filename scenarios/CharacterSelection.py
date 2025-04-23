@@ -1,6 +1,6 @@
 import pygame
 from functions import position, size, get_resolution
-from components.CharacterSelector import CharacterSelector, CharacterSelectorWASD, CharacterSelectorIJKL
+from components.CharacterSelector import CharacterSelector
 
 class CharacterSelection:
     def __init__(self, game):
@@ -38,8 +38,8 @@ class CharacterSelection:
         self.player2_select_text = player_select_font.render("'O' to select", True, (0, 0, 0))
         self.player2_select_text_rect = self.player2_select_text.get_rect()
         self.player2_select_text_rect.center = position(75, 35)
-        self.character_selector_wasd = CharacterSelectorWASD(self.game, position(25, 50), size(30, 15), 1, 4)
-        self.character_selector_ijkl = CharacterSelectorIJKL(self.game, position(75, 50), size(30, 15), 1, 4)
+        self.character_selector_wasd = CharacterSelector(self.game, position(25, 50), size(30, 15), 1, 4, (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_e))
+        self.character_selector_ijkl = CharacterSelector(self.game, position(75, 50), size(30, 15), 1, 4, (pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_o))
         
 
     def draw(self, screen):
@@ -71,7 +71,9 @@ class CharacterSelection:
             self.music_played = True
         
         if self.character_selector_wasd.character_selected and self.character_selector_ijkl.character_selected:
+            self.game.fight.create_characters(self.character_selector_wasd.get_character_name(), self.character_selector_ijkl.get_character_name())
             self.status = False
+            self.game.fight.status = True
         
         self.character_selector_wasd.check_input()
         self.character_selector_ijkl.check_input()

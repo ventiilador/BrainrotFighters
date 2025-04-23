@@ -58,6 +58,7 @@ class Game:
             self.character_selection.create_display_components()
             self.last_update_display_time = current_time
             print("🔁 Display Components Reloaded Successfully!")
+    
 
     def run(self):
         """
@@ -91,6 +92,10 @@ class Game:
             elif self.character_selection.status:
                 self.character_selection.manage_events()
                 self.character_selection.draw(self.screen)
+            
+            elif self.fight.status:
+                self.fight.manage_events(delta_time)
+                self.fight.draw(self.screen)
 
             else:
                 self.screen.fill((255,255,255))
