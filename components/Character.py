@@ -127,7 +127,7 @@ class Tralalero(Character):
         self.current_left_basic_skill_sprite = 0
         self.current_right_basic_skill_sprite = 0
 
-        super().__init__(character_name, controls)
+        super().__init__(fight, character_name, controls)
 
         # Set initial sprite
         self.current_sprite = self.left_animation_sprites[self.current_left_sprite]

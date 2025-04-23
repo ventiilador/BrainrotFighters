@@ -9,7 +9,7 @@ class MapRandomizer:
 
         # Control variables +
         self.status = False
-        self.velocity = 0 #randint(3000, 5000)
+        self.velocity = randint(3000, 5000)
         self.winner_map = None
         self.show_message = False
         self.message_started = False
