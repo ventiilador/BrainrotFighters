@@ -15,7 +15,7 @@ class Fight:
             self.map_rect.center = position(50, 50)
     
     def create_characters(self, wasd_character_name, ijkl_character_name):
-        self.wasd_character = Tralalero(self, wasd_character_name, (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_q))
+        self.wasd_character = Tralalero(self, wasd_character_name, (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_q, pygame.K_e))
 
     def manage_events(self, dt):
         self.wasd_character.move(dt)

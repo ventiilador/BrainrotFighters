@@ -31,6 +31,11 @@ class Character:
         self.basic_skill_last_time = 0
         self.basic_skill_damage = 7
 
+        self.elemental_skill_cooldown = 1000
+        self.doing_elemental_skill = False
+        self.elemental_skill_last_time = 0
+        self.elemental_skill_damage = 7
+
         # Stats
         self.health = 100
 
@@ -65,9 +70,14 @@ class Character:
         if keys[self.controls[4]] and current_time - self.basic_skill_last_time > self.basic_skill_cooldown:
             self.doing_basic_skill = True
             self.basic_skill_last_time = current_time
-        self.basic_skill()
+        self.skill("basic_skill")
+
+        if keys[self.controls[5]] and current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
+            self.doing_elemental_skill = True
+            self.elemental_skill_last_time = current_time
+        self.skill("elemental_skill")
         
-        if self.rect.bottom >= self.ground_y and not keys[self.controls[1]] and not keys[self.controls[3]] and not self.doing_basic_skill:
+        if self.rect.bottom >= self.ground_y and not keys[self.controls[1]] and not keys[self.controls[3]] and not self.doing_basic_skill and not self.doing_elemental_skill:
             self.idle_animation()
 
         if self.rect.bottom < self.ground_y or self.y_velocity < 0:
@@ -90,8 +100,36 @@ class Character:
         elif self.last_direction == "right":
             self.animate(self.idle_right_animation_sprites, 'current_right_idle_sprite', 'animations_cooldown', 'last_idle_animation_time')
     
-    def basic_skill(self):
-        pass
+    def skill(self, skill_name):
+        if not getattr(self, f"doing_{skill_name}", False):
+            return
+
+        current_time = pygame.time.get_ticks()
+        
+        last_skill_time = getattr(self, f"{skill_name}_last_time")
+
+        if current_time - last_skill_time <= self.animations_cooldown:
+            return
+
+        side = self.last_direction
+
+        anim_attr = f"{skill_name}_{side}_animation"
+        index_attr = f"current_{side}_{skill_name}_sprite"
+        damage_attr = f"{skill_name}_damage"
+
+        animation_frames = getattr(self, anim_attr)
+        current_index = getattr(self, index_attr)
+
+        if current_index + 1 >= len(animation_frames):
+            setattr(self, index_attr, 0)
+            setattr(self, f"doing_{skill_name}", False)
+            self.deal_damage(getattr(self, damage_attr))
+        else:
+            setattr(self, index_attr, current_index + 1)
+
+        self.current_sprite = animation_frames[getattr(self, index_attr)]
+
+        setattr(self, f"{skill_name}_last_time", current_time)
 
     def deal_damage(dmg):
         pass
@@ -119,6 +157,12 @@ class Tralalero(Character):
         self.basic_skill_right_animation = load_sprites(
             "assets/images/fight/tralalero_tralala/tralalero_basic_skill_right_{}.png", 4, self.size
         )
+        self.elemental_skill_left_animation = load_sprites(
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 4, self.size
+        )
+        self.elemental_skill_right_animation = load_sprites(
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 4, self.size
+        )
 
         self.current_left_sprite = 0
         self.current_right_sprite = 0
@@ -126,37 +170,15 @@ class Tralalero(Character):
         self.current_right_idle_sprite = 0
         self.current_left_basic_skill_sprite = 0
         self.current_right_basic_skill_sprite = 0
+        self.current_left_elemental_skill_sprite = 0
+        self.current_right_elemental_skill_sprite = 0
 
         super().__init__(fight, character_name, controls)
 
         # Set initial sprite
         self.current_sprite = self.left_animation_sprites[self.current_left_sprite]
     
-        
-    def basic_skill(self):
-        if not self.doing_basic_skill:
-            return
 
-        current_time = pygame.time.get_ticks()
-        if current_time - self.basic_skill_last_time <= self.animations_cooldown:
-            return
-
-        side = self.last_direction
-        anim_attr = f"basic_skill_{side}_animation"
-        index_attr = f"current_{side}_basic_skill_sprite"
-
-        current_index = getattr(self, index_attr)
-        animation_frames = getattr(self, anim_attr)
-
-        if current_index + 1 >= len(animation_frames):
-            setattr(self, index_attr, 0)
-            self.doing_basic_skill = False
-            self.deal_damage(self.basic_skill_damage)
-        else:
-            setattr(self, index_attr, current_index + 1)
-
-        self.current_sprite = animation_frames[getattr(self, index_attr)]
-        self.basic_skill_last_time = current_time
     
     def deal_damage(self, dmg):
         pass
