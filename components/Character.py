@@ -1,9 +1,11 @@
+from random import randint
 import pygame
 from functions import size, position_y, position_x, load_sprites
 
 class Character:
-    def __init__(self, fight, character_name, controls: tuple):
+    def __init__(self, fight, player_name, controls: tuple):
         self.fight = fight
+        self.player_name = player_name
 
         self.controls = controls
 
@@ -20,18 +22,20 @@ class Character:
 
         # Animation timing
         self.animations_cooldown = 300
-        self.last_left_animation_time = 0
-        self.last_right_animation_time = 0
+        self.last_left_walk_animation_time = 0
+        self.last_right_walk_animation_time = 0
         self.last_idle_animation_time = 0
         self.last_direction = "left"
 
         # Skills
         self.basic_skill_cooldown = 1000
+        self.basic_skill_update_time = 200
         self.doing_basic_skill = False
         self.basic_skill_last_time = 0
         self.basic_skill_damage = 7
 
         self.elemental_skill_cooldown = 1000
+        self.elemental_skill_update_time = 200
         self.doing_elemental_skill = False
         self.elemental_skill_last_time = 0
         self.elemental_skill_damage = 7
@@ -48,7 +52,8 @@ class Character:
             self.current_sprite = sprites[index]
             setattr(self, time_attr, current_time)
 
-    def move(self, dt):
+    def manage_events(self, dt):
+        print(self.health)
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
 
@@ -70,11 +75,13 @@ class Character:
         if keys[self.controls[4]] and current_time - self.basic_skill_last_time > self.basic_skill_cooldown:
             self.doing_basic_skill = True
             self.basic_skill_last_time = current_time
+            self.basic_skill()
         self.skill("basic_skill")
 
         if keys[self.controls[5]] and current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
             self.doing_elemental_skill = True
             self.elemental_skill_last_time = current_time
+            self.elemental_skill()
         self.skill("elemental_skill")
         
         if self.rect.bottom >= self.ground_y and not keys[self.controls[1]] and not keys[self.controls[3]] and not self.doing_basic_skill and not self.doing_elemental_skill:
@@ -89,16 +96,16 @@ class Character:
             self.y_velocity = 0
 
     def left_animation(self):
-        self.animate(self.left_animation_sprites, 'current_left_sprite', 'animations_cooldown', 'last_left_animation_time')
+        self.animate(self.left_animation_sprites, 'current_walk_sprite', 'animations_cooldown', 'last_left_walk_animation_time')
 
     def right_animation(self):
-        self.animate(self.right_animation_sprites, 'current_right_sprite', 'animations_cooldown', 'last_right_animation_time')
+        self.animate(self.right_animation_sprites, 'current_walk_sprite', 'animations_cooldown', 'last_right_walk_animation_time')
     
     def idle_animation(self):
         if self.last_direction == "left":
-            self.animate(self.idle_left_animation_sprites, 'current_left_idle_sprite', 'animations_cooldown', 'last_idle_animation_time')
+            self.animate(self.idle_left_animation_sprites, 'current_idle_sprite', 'animations_cooldown', 'last_idle_animation_time')
         elif self.last_direction == "right":
-            self.animate(self.idle_right_animation_sprites, 'current_right_idle_sprite', 'animations_cooldown', 'last_idle_animation_time')
+            self.animate(self.idle_right_animation_sprites, 'current_idle_sprite', 'animations_cooldown', 'last_idle_animation_time')
     
     def skill(self, skill_name):
         if not getattr(self, f"doing_{skill_name}", False):
@@ -108,13 +115,13 @@ class Character:
         
         last_skill_time = getattr(self, f"{skill_name}_last_time")
 
-        if current_time - last_skill_time <= self.animations_cooldown:
+        if current_time - last_skill_time <= getattr(self, skill_name + "_update_time"):
             return
 
         side = self.last_direction
 
         anim_attr = f"{skill_name}_{side}_animation"
-        index_attr = f"current_{side}_{skill_name}_sprite"
+        index_attr = f"current_{skill_name}_sprite"
         damage_attr = f"{skill_name}_damage"
 
         animation_frames = getattr(self, anim_attr)
@@ -123,7 +130,6 @@ class Character:
         if current_index + 1 >= len(animation_frames):
             setattr(self, index_attr, 0)
             setattr(self, f"doing_{skill_name}", False)
-            self.deal_damage(getattr(self, damage_attr))
         else:
             setattr(self, index_attr, current_index + 1)
 
@@ -131,8 +137,6 @@ class Character:
 
         setattr(self, f"{skill_name}_last_time", current_time)
 
-    def deal_damage(dmg):
-        pass
 
     def draw(self, screen):
         screen.blit(self.current_sprite, self.rect)
@@ -158,27 +162,69 @@ class Tralalero(Character):
             "assets/images/fight/tralalero_tralala/tralalero_basic_skill_right_{}.png", 4, self.size
         )
         self.elemental_skill_left_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 4, self.size
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 5, self.size
         )
         self.elemental_skill_right_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 4, self.size
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.size
         )
 
-        self.current_left_sprite = 0
-        self.current_right_sprite = 0
-        self.current_left_idle_sprite = 0
-        self.current_right_idle_sprite = 0
-        self.current_left_basic_skill_sprite = 0
-        self.current_right_basic_skill_sprite = 0
-        self.current_left_elemental_skill_sprite = 0
-        self.current_right_elemental_skill_sprite = 0
+        self.current_walk_sprite = 0
+        self.current_idle_sprite = 0
+        self.current_basic_skill_sprite = 0
+        self.current_elemental_skill_sprite = 0
+        self.bubbles = []
+        self.bubble_speed = 100
+        self.bubbles_status = False
 
         super().__init__(fight, character_name, controls)
 
         # Set initial sprite
-        self.current_sprite = self.left_animation_sprites[self.current_left_sprite]
+        self.current_sprite = self.left_animation_sprites[self.current_walk_sprite]
     
+    def manage_events(self, dt):
+        super().manage_events(dt)
+        enemy = self.fight.player2 if self.player_name == "player1" else self.fight.player1
+        if self.bubbles_status:
+            if not len(self.bubbles):
+                self.bubbles_status = False
+                return
+            bubbles_new = []
+            for i in range(len(self.bubbles)):
+                if self.bubbles[i][1].colliderect(enemy.rect):
+                    enemy.health -= self.elemental_skill_damage
+                else:
+                    bubbles_new.append(self.bubbles[i])
 
+                dx = enemy.rect.center[0] - self.bubbles[i][1].x
+                dy = enemy.rect.center[1] - self.bubbles[i][1].y
+                
+                length = (dx**2 + dy**2)**0.5
+                if length != 0:
+                    dx /= length
+                    dy /= length
+                vx = dx * self.bubble_speed
+                vy = dy * self.bubble_speed
+                self.bubbles[i][1].x += vx * dt
+                self.bubbles[i][1].y += vy * dt
+            self.bubbles = bubbles_new
+
+    def draw(self, screen):
+        super().draw(screen)
+        for bubble in self.bubbles:
+            screen.blit(bubble[0], bubble[1])
     
-    def deal_damage(self, dmg):
-        pass
+    def basic_skill(self):
+        enemy = self.fight.player2 if self.player_name == "player1" else self.fight.player1
+        if self.rect.colliderect(enemy.rect):
+            enemy.health -= self.basic_skill_damage
+    
+    def elemental_skill(self):
+        for i in range(1):
+            img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/bubble.png"), size(3, 3))
+            rect = img.get_rect()
+            center = self.rect.center
+            rect.center = (randint(center[0] - position_x(3), center[0] + position_x(3)), randint(center[1] - position_y(3), center[1] + position_y(3)))
+            self.bubbles.append([img, rect])
+        self.bubbles_status = True
+    
+    # Arreglar las hitbox y hacer que los proyectiles tengan vida util

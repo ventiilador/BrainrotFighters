@@ -1,7 +1,7 @@
 {
     "Config": {
-        "SongsVolume": 0.25,
-        "SoundsVolume": 0.375,
+        "SongsVolume": 0.0,
+        "SoundsVolume": 0.0,
         "Resolution": [
             1280,
             720
