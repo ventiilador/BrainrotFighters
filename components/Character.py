@@ -1,6 +1,6 @@
 from random import randint
 import pygame
-from functions import size, position_y, position_x, load_sprites
+from functions import size, position_y, position_x, load_sprites, size_x, size_y
 
 class Character:
     def __init__(self, fight, player_name, controls: tuple):
@@ -139,33 +139,33 @@ class Character:
 
 
     def draw(self, screen):
-        screen.blit(self.current_sprite, self.rect)
+        screen.blit(self.current_sprite, (self.rect.x - self.rect.size[0] // 2, self.rect.y - size_y(5)))
 
 
 class Tralalero(Character):
     def __init__(self, fight, character_name, controls):
-        self.size = size(20, 25)
+        self.sprite_size = size(20, 25)
 
         # Load character sprites
         self.left_animation_sprites = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_left_{}.png", 3, self.size)
+            "assets/images/fight/tralalero_tralala/tralalero_left_{}.png", 3, self.sprite_size)
         self.right_animation_sprites = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_right_{}.png", 3, self.size)
+            "assets/images/fight/tralalero_tralala/tralalero_right_{}.png", 3, self.sprite_size)
         self.idle_left_animation_sprites = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_idle_left_{}.png", 2, self.size)
+            "assets/images/fight/tralalero_tralala/tralalero_idle_left_{}.png", 2, self.sprite_size)
         self.idle_right_animation_sprites = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_idle_right_{}.png", 2, self.size)
+            "assets/images/fight/tralalero_tralala/tralalero_idle_right_{}.png", 2, self.sprite_size)
         self.basic_skill_left_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_basic_skill_left_{}.png", 4, self.size
+            "assets/images/fight/tralalero_tralala/tralalero_basic_skill_left_{}.png", 4, self.sprite_size
         )
         self.basic_skill_right_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_basic_skill_right_{}.png", 4, self.size
+            "assets/images/fight/tralalero_tralala/tralalero_basic_skill_right_{}.png", 4, self.sprite_size
         )
         self.elemental_skill_left_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 5, self.size
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 5, self.sprite_size
         )
         self.elemental_skill_right_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.size
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.sprite_size
         )
 
         self.current_walk_sprite = 0
@@ -175,7 +175,9 @@ class Tralalero(Character):
         self.bubbles = []
         self.bubble_speed = 100
         self.bubbles_status = False
+        self.bubbles_lifetime = 4
 
+        self.size = size(10, 15)
         super().__init__(fight, character_name, controls)
 
         # Set initial sprite
@@ -190,6 +192,10 @@ class Tralalero(Character):
                 return
             bubbles_new = []
             for i in range(len(self.bubbles)):
+                self.bubbles[i][2] += dt
+                print(self.bubbles[i][2])
+                if self.bubbles[i][2] >= self.bubbles_lifetime:
+                    continue
                 if self.bubbles[i][1].colliderect(enemy.rect):
                     enemy.health -= self.elemental_skill_damage
                 else:
@@ -219,12 +225,10 @@ class Tralalero(Character):
             enemy.health -= self.basic_skill_damage
     
     def elemental_skill(self):
-        for i in range(1):
+        for i in range(randint(2, 4)):
             img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/bubble.png"), size(3, 3))
             rect = img.get_rect()
             center = self.rect.center
-            rect.center = (randint(center[0] - position_x(3), center[0] + position_x(3)), randint(center[1] - position_y(3), center[1] + position_y(3)))
-            self.bubbles.append([img, rect])
+            rect.center = (randint(center[0] - position_x(5), center[0] + position_x(5)), randint(center[1] - position_y(5), center[1] + position_y(5)))
+            self.bubbles.append([img, rect, 0])
         self.bubbles_status = True
-    
-    # Arreglar las hitbox y hacer que los proyectiles tengan vida util

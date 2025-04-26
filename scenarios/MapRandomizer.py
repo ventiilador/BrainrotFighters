@@ -9,7 +9,7 @@ class MapRandomizer:
 
         # Control variables +
         self.status = False
-        self.velocity = 0 # randint(3000, 5000)
+        self.velocity = 0 #randint(3000, 5000)
         self.winner_map = None
         self.show_message = False
         self.message_started = False
@@ -38,7 +38,7 @@ class MapRandomizer:
         self.maps = []
         x = position_x(100) - size_x(50) // 2
         for _ in range(100):
-            map = self.map_images[randint(0, len(self.map_images) - 1)]
+            map = self.map_images[0]#randint(0, len(self.map_images) - 1)]
             image, title = map[0], map[1]
             rect = image.get_rect()
             rect.center = (x, position_y(50))
