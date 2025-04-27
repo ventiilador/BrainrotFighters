@@ -16,6 +16,8 @@ class Character:
         self.jump_strength = -1000
         self.y_velocity = 0
         self.x_velocity = 800
+        self.x_velocity_debuffed = False
+        self.x_velocity_debuffed_time = 0
 
         # Ground position limit
         self.ground_y = position_y(90)
@@ -34,11 +36,17 @@ class Character:
         self.basic_skill_last_time = 0
         self.basic_skill_damage = 7
 
-        self.elemental_skill_cooldown = 1000
+        self.elemental_skill_cooldown = 5000
         self.elemental_skill_update_time = 200
         self.doing_elemental_skill = False
         self.elemental_skill_last_time = 0
         self.elemental_skill_damage = 7
+        
+        self.ultimate_skill_cooldown = 10000
+        self.ultimate_skill_update_time = 200
+        self.doing_ultimate_skill = False
+        self.ultimate_skill_last_time = 0
+        self.ultimate_skill_damage = 7
 
         # Stats
         self.health = 100
@@ -83,6 +91,12 @@ class Character:
             self.elemental_skill_last_time = current_time
             self.elemental_skill()
         self.skill("elemental_skill")
+
+        if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown:
+            self.doing_ultimate_skill = True
+            self.ultimate_skill_last_time = current_time
+            self.ultimate_skill()
+        self.skill("ultimate_skill")
         
         if self.rect.bottom >= self.ground_y and not keys[self.controls[1]] and not keys[self.controls[3]] and not self.doing_basic_skill and not self.doing_elemental_skill:
             self.idle_animation()
@@ -94,6 +108,16 @@ class Character:
         if self.rect.bottom >= self.ground_y:
             self.rect.bottom = self.ground_y
             self.y_velocity = 0
+        
+        if self.x_velocity_debuffed:
+            self.x_velocity_debuffed_time += dt
+            if self.x_velocity_debuffed_time >= self.x_velocity_cooldown:
+                self.x_velocity_debuffed = False
+                self.x_velocity_debuffed_time = 0
+                self.x_velocity = 800
+                return
+            
+            
 
     def left_animation(self):
         self.animate(self.left_animation_sprites, 'current_walk_sprite', 'animations_cooldown', 'last_left_walk_animation_time')
@@ -136,7 +160,12 @@ class Character:
         self.current_sprite = animation_frames[getattr(self, index_attr)]
 
         setattr(self, f"{skill_name}_last_time", current_time)
-
+    
+    def debuff(self, attr, debff, time):
+        if getattr(self, attr):
+            setattr(self, attr, debff)
+            setattr(self, attr+"_debuffed", True)
+            setattr(self, attr+"_cooldown", time)
 
     def draw(self, screen):
         screen.blit(self.current_sprite, (self.rect.x - self.rect.size[0] // 2, self.rect.y - size_y(5)))
@@ -168,14 +197,34 @@ class Tralalero(Character):
             "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.sprite_size
         )
 
+        self.ultimate_skill_left_animation = load_sprites(
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 5, self.sprite_size
+        )
+        self.ultimate_skill_right_animation = load_sprites(
+            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.sprite_size
+        )
+
+        # Indexs
         self.current_walk_sprite = 0
         self.current_idle_sprite = 0
         self.current_basic_skill_sprite = 0
         self.current_elemental_skill_sprite = 0
+        self.current_ultimate_skill_sprite = 0
+
+        # Elemental skill
         self.bubbles = []
         self.bubble_speed = 100
         self.bubbles_status = False
         self.bubbles_lifetime = 4
+
+        # Ultimate skill
+        self.wave_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/wave.png"), size(10, 70))
+        self.wave_rect = self.wave_img.get_rect()
+        self.wave_direction = None
+        self.wave_status = False
+        self.wave_speed = 1000
+        self.wave_lifetime = 5
+        self.wave_time = 0
 
         self.size = size(10, 15)
         super().__init__(fight, character_name, controls)
@@ -213,11 +262,27 @@ class Tralalero(Character):
                 self.bubbles[i][1].x += vx * dt
                 self.bubbles[i][1].y += vy * dt
             self.bubbles = bubbles_new
+        
+        if self.wave_status:
+            enemy_colliding = self.wave_rect.colliderect(enemy)
+            if enemy_colliding:
+                enemy.debuff("x_velocity", 200, 4)
+            if self.wave_time >= self.wave_lifetime or enemy_colliding:
+                self.wave_time = 0
+                self.wave_status = False
+                return
+            self.wave_time += dt
+            if self.wave_direction == "left":
+                self.wave_rect.x -= self.wave_speed * dt
+            else:
+                self.wave_rect.x += self.wave_speed * dt
 
     def draw(self, screen):
         super().draw(screen)
         for bubble in self.bubbles:
             screen.blit(bubble[0], bubble[1])
+        if self.wave_status:
+            screen.blit(self.wave_img, self.wave_rect)
     
     def basic_skill(self):
         enemy = self.fight.player2 if self.player_name == "player1" else self.fight.player1
@@ -232,3 +297,8 @@ class Tralalero(Character):
             rect.center = (randint(center[0] - position_x(5), center[0] + position_x(5)), randint(center[1] - position_y(5), center[1] + position_y(5)))
             self.bubbles.append([img, rect, 0])
         self.bubbles_status = True
+    
+    def ultimate_skill(self):
+        self.wave_direction = self.last_direction
+        self.wave_rect.center = self.rect.center
+        self.wave_status = True
