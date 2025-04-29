@@ -3,7 +3,10 @@ from functions import get_songs_volume, get_sounds_volume
 
 class SoundManager:
     def __init__(self):
-        pygame.mixer.init()
+        try:
+            pygame.mixer.init()
+        except Exception as e:
+            print("We could not inicializate the sound, do u have audio output?")
         self.songs = {}
         self.sounds = {}
 

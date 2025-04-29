@@ -105,3 +105,26 @@ def load_sprites(path_pattern: str, count: int, size: tuple):
     """Load and scale a sequence of sprites from a formatted file path."""
     return tuple(pygame.transform.scale(pygame.image.load(path_pattern.format(i + 1)), size)
                  for i in range(count))
+
+def render_text_with_border(text, font, text_color, border_color):
+    text_surface = font.render(text, True, border_color)
+    
+    border_surface = pygame.Surface((text_surface.get_width() + 2, text_surface.get_height() + 2), pygame.SRCALPHA)
+    
+    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        border_surface.blit(font.render(text, True, border_color), (dx + 1, dy + 1))
+    
+    border_surface.blit(font.render(text, True, text_color), (1, 1))
+    
+    return border_surface
+
+def grayscale_image(surface):
+    gray_surface = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+    
+    for x in range(surface.get_width()):
+        for y in range(surface.get_height()):
+            r, g, b, a = surface.get_at((x, y))
+            gray = int((r + g + b) / 3)
+            gray_surface.set_at((x, y), (gray, gray, gray, a))
+    
+    return gray_surface

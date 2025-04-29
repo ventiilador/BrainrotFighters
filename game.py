@@ -1,5 +1,5 @@
 import pygame
-from functions import get_resolution, get_fps, get_fullscreen, get_showfps
+from functions import get_resolution, get_fps, get_fullscreen, get_showfps, render_text_with_border
 from scenarios.MainMenu import MainMenu
 from scenarios.ConfigMenu import ConfigMenu
 from scenarios.CharacterSelection import CharacterSelection
@@ -102,16 +102,9 @@ class Game:
             
             if self.show_fps:
                 fps = int(self.clock.get_fps())
-                fps_text = self.fps_font.render(f"FPS: {fps}", True, (255, 215, 0))
-                border_text = self.fps_font.render(f"FPS: {fps}", True, (0, 0, 0))
-
-                self.screen.blit(border_text, (12, 12))
-                self.screen.blit(border_text, (8, 12))
-                self.screen.blit(border_text, (12, 8))
-                self.screen.blit(border_text, (8, 8))
-
+                fps_text = render_text_with_border(f"FPS: {fps}", self.fps_font, (255, 215, 0), (0, 0, 0))
                 self.screen.blit(fps_text, (10, 10))
-
+                
             pygame.display.flip()
 
             self.clock.tick(self.fps)
