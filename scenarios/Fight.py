@@ -20,6 +20,8 @@ class Fight:
         self.player1 = Bombardiro(self, "player1", (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_q, pygame.K_e, pygame.K_r))
         self.character_bar1 = CharacterBar(self.player1, position(25, 15))
         self.player2 = Tralalero(self, "player2", (pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_u, pygame.K_o, pygame.K_p))
+        self.player1.set_enemy(self.player2)
+        self.player2.set_enemy(self.player1)
         self.character_bar2 = CharacterBar(self.player2, position(75, 15))
 
     def manage_events(self, dt):

@@ -52,6 +52,9 @@ class Character:
 
         # Stats
         self.health = 100
+    
+    def set_enemy(self, enemy):
+        self.enemy = enemy
 
     def animate(self, sprites, current_index_attr, cooldown_attr, time_attr):
         current_time = pygame.time.get_ticks()
@@ -163,6 +166,7 @@ class Character:
 
         setattr(self, f"{skill_name}_last_time", current_time)
     
+    
     def debuff(self, attr, debff, time):
         if getattr(self, attr):
             setattr(self, attr, debff)
@@ -170,4 +174,4 @@ class Character:
             setattr(self, attr+"_cooldown", time)
 
     def draw(self, screen):
-        screen.blit(self.current_sprite, (self.rect.x - self.rect.size[0] // 2, self.rect.y - size_y(5)))
+        pass
