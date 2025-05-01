@@ -121,8 +121,6 @@ class Character:
                 self.x_velocity = 800
                 return
             
-            
-
     def left_animation(self):
         self.animate(self.left_animation_sprites, 'current_walk_sprite', 'animations_cooldown', 'last_left_walk_animation_time')
 

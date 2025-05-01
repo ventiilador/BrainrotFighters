@@ -4,8 +4,8 @@ from functions import size, position, load_sprites, size_x, size_y
 from characters.Character import Character
 
 class Proyectile:
-    def __init__(self, position, size, speed, lifetime, animation_cooldown, 
-    enemy, objective=None, damage=0, debuff=(), animation_path=None, sprites_count=0, rotate=False):
+    def __init__(self, position, sprite_size, rect_size, speed, lifetime, 
+    enemy, objective=None, damage=0, debuff=(), animation_path=None, animation_cooldown=0, sprites_count=0, rotate=False):
         self.speed = speed
         self.objective = objective
         self.enemy = enemy
@@ -14,9 +14,9 @@ class Proyectile:
         self.lifetime = lifetime
         self.time = 0
         self.rotate = rotate
-        self.animation_sprites = load_sprites(animation_path, sprites_count, size)
+        self.animation_sprites = load_sprites(animation_path, sprites_count, sprite_size)
         self.current_animation_sprite = 0
-        self.rect = pygame.rect.Rect(position[0], position[1], size[0] - size_x(15), size[1] - size_y(15))
+        self.rect = pygame.rect.Rect(position[0], position[1], rect_size[0], rect_size[1])
         self.rect.center = position
         self.last_animation_time = 0
         self.animation_cooldown = animation_cooldown
@@ -29,25 +29,22 @@ class Proyectile:
             self.status = False
             return
 
-        if self.enemy:
-            if self.rect.colliderect(self.enemy.rect):
-                self.enemy.health -= self.damage
-                if self.debuff_args:
-                    self.enemy.debuff(*self.debuff_args)
-                self.status = False
-                return
-            dx = self.enemy.rect.centerx - self.rect.centerx
-            dy = self.enemy.rect.centery - self.rect.centery
+        if self.rect.colliderect(self.enemy.rect):
+            self.enemy.health -= self.damage
+            if self.debuff_args:
+                self.enemy.debuff(*self.debuff_args)
+            self.status = False
+            return
 
-        elif self.objective:
+        if self.objective:
             dx = self.objective[0] - self.rect.centerx
             dy = self.objective[1] - self.rect.centery
-            if abs(dx) < 5 and abs(dy) < 5:
+            if self.rect.collidepoint(self.objective):
                 self.status = False
                 return
-
         else:
-            dx = dy = 0
+            dx = self.enemy.rect.centerx - self.rect.centerx
+            dy = self.enemy.rect.centery - self.rect.centery
 
         length = (dx**2 + dy**2)**0.5
         if length != 0:
@@ -61,6 +58,7 @@ class Proyectile:
         self.rect.y += dy * self.speed * dt
 
         if current_time - self.last_animation_time >= self.animation_cooldown:
+            self.last_animation_time = current_time
             if self.current_animation_sprite >= len(self.animation_sprites) - 1:
                 self.current_animation_sprite = 0
             else:
@@ -72,4 +70,5 @@ class Proyectile:
             rotated_rect = rotated_image.get_rect(center=self.rect.center)
             screen.blit(rotated_image, rotated_rect)
         else:
-            screen.blit(self.animation_sprites[self.current_animation_sprite], self.rect)
+            img_rect = self.animation_sprites[self.current_animation_sprite].get_rect(center=self.rect.center)
+            screen.blit(self.animation_sprites[self.current_animation_sprite], img_rect)

@@ -1,7 +1,7 @@
 import pygame
 from characters.Character import Character
 from characters.Projectile import Proyectile
-from functions import load_sprites, size, position, position_x, position_y, size_x, size_y
+from functions import load_sprites, size, position_x, position_y
 from random import randint
 
 class Tralalero(Character):
@@ -53,14 +53,7 @@ class Tralalero(Character):
         self.bubbles = []
 
         # Ultimate skill
-        self.left_wave_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/left_wave.png").convert_alpha(), size(20, 70))
-        self.right_wave_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/right_wave.png").convert_alpha(), size(20, 70))
-        self.wave_rect = self.left_wave_img.get_rect()
-        self.wave_direction = None
-        self.wave_status = False
-        self.wave_speed = 500
-        self.wave_lifetime = 5
-        self.wave_time = 0
+        self.wave = None
 
         self.size = size(10, 15)
         super().__init__(fight, character_name, controls)
@@ -74,29 +67,9 @@ class Tralalero(Character):
             if bubble.status:
                 bubble.move(dt)
         
-        if self.wave_status:
-            enemy_colliding = self.wave_rect.colliderect(self.enemy.rect)
-            if enemy_colliding:
-                self.enemy.debuff("x_velocity", 200, 4)
-                self.enemy.health -= self.ultimate_skill_damage
-            if self.wave_time >= self.wave_lifetime or enemy_colliding:
-                self.wave_time = 0
-                self.wave_status = False
-                return
-            self.wave_time += dt
-            if self.wave_direction == "left":
-                self.wave_rect.x -= self.wave_speed * dt
-            else:
-                self.wave_rect.x += self.wave_speed * dt
-
-    def draw(self, screen):
-        super().draw(screen)
-        for bubble in self.bubbles:
-            if bubble.status:
-                bubble.draw(screen)
-        if self.wave_status:
-            wave = self.left_wave_img if self.wave_direction == "left" else self.right_wave_img
-            screen.blit(wave, self.wave_rect)
+        if self.wave:
+            if self.wave.status:
+                self.wave.move(dt)
     
     def basic_skill(self):
         if self.rect.colliderect(self.enemy.rect):
@@ -105,13 +78,21 @@ class Tralalero(Character):
     def elemental_skill(self):
         for i in range(randint(2, 4)):
             bubble = Proyectile((randint(self.rect.center[0] - position_x(5), self.rect.center[0] + position_x(5)), randint(self.rect.center[1] - position_y(5), self.rect.center[1] + position_y(5))),
-                                size(3, 5), 300, 4, 200, self.enemy, damage=10, animation_path="assets/images/fight/tralalero_tralala/bubble_{}.png", sprites_count=1)
+                                size(3, 5), size(3, 4), 300, 4, self.enemy, damage=10, animation_path="assets/images/fight/tralalero_tralala/bubble_{}.png", animation_cooldown=200, sprites_count=1)
             self.bubbles.append(bubble)
     
     def ultimate_skill(self):
-        self.wave_direction = self.last_direction
-        self.wave_rect.center = self.rect.center
-        self.wave_status = True
+        objective = (self.rect.center[0] - position_x(70), self.rect.center[1]) if self.last_direction == "left" else (self.rect.center[0] + position_x(40), self.rect.center[1])
+        self.wave = Proyectile(self.rect.topleft, size(20, 25), size(16, 23), 300, 6, self.enemy, damage=20, debuff=("x_velocity", 400, 3), objective=objective,
+                                animation_path="assets/images/fight/tralalero_tralala/"+self.last_direction+"_wave_{}.png", animation_cooldown=500, sprites_count=3)
     
     def draw(self, screen):
-        screen.blit(self.current_sprite, (self.rect.x - self.rect.size[0] // 2, self.rect.y - size_y(5)))
+        img_rect = self.current_sprite.get_rect()
+        img_rect.center = self.rect.center
+        screen.blit(self.current_sprite, img_rect)
+        for bubble in self.bubbles:
+            if bubble.status:
+                bubble.draw(screen)
+        if self.wave:
+            if self.wave.status:
+                self.wave.draw(screen)
