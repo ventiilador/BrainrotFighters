@@ -3,7 +3,12 @@ from functions import position, size, get_fullscreen, set_fullscreen, get_showfp
 
 class CheckBox:
     def __init__(self, position, size, game):
+        # We associate the component with the game
         self.game = game
+
+        """
+        We create the subcomponents
+        """
         self.rect = pygame.rect.Rect(0, 0, size[0], size[1])
         self.rect.center = position
 
@@ -20,10 +25,16 @@ class CheckBox:
         self.last_time = 0
     
     def draw(self, screen):
+        """
+        This function draws the component in the screen
+        """
         image = self.checkbox_on if self.status else self.checkbox_off
         screen.blit(image, self.rect)
     
     def check_input(self):
+        """
+        This function manages the logic of the component
+        """
         mouse_pos = pygame.mouse.get_pos()
         mouse_buttons = pygame.mouse.get_pressed()
         current_time = pygame.time.get_ticks()

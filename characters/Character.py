@@ -90,11 +90,13 @@ class Character:
             self.basic_skill()
         self.skill("basic_skill")
 
-        if keys[self.controls[5]] and current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
-            self.doing_elemental_skill = True
-            self.elemental_skill_last_time = current_time
-            self.elemental_skill()
-        self.skill("elemental_skill")
+        if keys[self.controls[5]]: 
+            print(f"Current Time: {current_time}, Last Time: {self.elemental_skill_last_time}, Cooldown: {self.elemental_skill_cooldown}")
+            if current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
+                self.doing_elemental_skill = True
+                self.elemental_skill_last_time = current_time
+                self.elemental_skill()
+
 
         if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown:
             self.doing_ultimate_skill = True

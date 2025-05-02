@@ -21,6 +21,7 @@ class Proyectile:
         self.last_animation_time = 0
         self.animation_cooldown = animation_cooldown
         self.status = True
+        self.angle = 0
     
     def move(self, dt):
         current_time = pygame.time.get_ticks()

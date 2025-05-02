@@ -3,7 +3,12 @@ from functions import size as sz
 
 class CharacterSelector:
     def __init__(self, game, position:tuple, size:tuple, rows, columns, controls:tuple):
+        # We associate the component with the game
         self.game = game
+
+        """
+        Creation of subcomponents
+        """
         self.rect = pygame.rect.Rect(0, 0, size[0], size[1])
         self.rect.center = position
         self.slot_size = (size[0] // columns, size[1] // rows)
@@ -33,6 +38,9 @@ class CharacterSelector:
         self.controls = controls
     
     def draw(self, screen):
+        """
+        This function draws the component in the screen
+        """
         pygame.draw.rect(screen, (255,180,0), self.rect.inflate(20, 20))
         for slot in self.slots:
             pygame.draw.rect(screen, (255,180,0), slot[0])
@@ -43,6 +51,9 @@ class CharacterSelector:
             screen.blit(self.check_image, self.check_image_rect)
     
     def check_input(self):
+        """
+        This function manages the component main logic
+        """
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
         if not self.character_selected:
@@ -71,4 +82,7 @@ class CharacterSelector:
             self.check_last_time = current_time
 
     def get_character_name(self):
+        """
+        This function returns the name of the selected character
+        """
         return self.characters[self.current_x][1]

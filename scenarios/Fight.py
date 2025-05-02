@@ -6,6 +6,7 @@ from components.CharacterBar import CharacterBar
 
 class Fight:
     def __init__(self, game):
+        # We associate the scene with the game / control
         self.game = game
         self.status = False
         self.map = None
@@ -16,7 +17,8 @@ class Fight:
             self.map_rect = self.map.get_rect()
             self.map_rect.center = position(50, 50)
     
-    def create_characters(self, wasd_character_name, ijkl_character_name):
+    def create_characters(self, player1_name, player2_name):
+        pygame.time.wait(1000)
         self.player1 = Bombardiro(self, "player1", (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_q, pygame.K_e, pygame.K_r))
         self.character_bar1 = CharacterBar(self.player1, position(25, 15))
         self.player2 = Tralalero(self, "player2", (pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_u, pygame.K_o, pygame.K_p))

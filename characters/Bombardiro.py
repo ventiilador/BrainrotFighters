@@ -1,3 +1,4 @@
+from random import randint
 import pygame
 from characters.Character import Character
 from functions import load_sprites, size, position, position_x, position_y, size_x, size_y
@@ -49,31 +50,51 @@ class Bombardiro(Character):
         self.current_elemental_skill_sprite = 0
         self.current_ultimate_skill_sprite = 0
 
+        # Basic skill
+        self.missile = None
+
+        # Elemental skill
+        self.fly_time = 7
+        self.flying_time = 0
+        self.can_fly = False
+        self.y_fly_velocity = 500
+        self.elemental_skill_cooldown = 17000
+
+        # Ultimate skill
+        self.missiles = []
+
+        # Hitbox_size
         self.size = size(20, 15)
         super().__init__(fight, character_name, controls)
 
-        self.missile = None
-
-        self.fly_time = 10
-        self.flying_time = 0
-        self.can_fly = False
+        # 0 cooldowns
+        current_time = pygame.time.get_ticks()
+        self.basic_skill_last_time = current_time - self.basic_skill_cooldown
+        self.elemental_skill_last_time = current_time - self.elemental_skill_cooldown
+        self.ultimate_skill_last_time = current_time - self.ultimate_skill_cooldown
 
         # Set initial sprite
         self.current_sprite = self.left_animation_sprites[self.current_walk_sprite]
-    
+
     def manage_events(self, dt):
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
 
-        if self.rect.bottom >= self.ground_y and not self.can_fly:
-            if keys[self.controls[0]] and self.rect.bottom >= self.ground_y and not self.can_fly:
+        if keys[self.controls[0]]:
+            if self.rect.bottom >= self.ground_y and not self.can_fly:
                 self.y_velocity = self.jump_strength
+            elif self.can_fly:
+                self.rect.y -= self.y_fly_velocity * dt
 
         if keys[self.controls[1]] and not keys[self.controls[3]]:
             if self.rect.left >= 0:
                 self.rect.x -= self.x_velocity * dt
             self.last_direction = "left"
             self.left_animation()
+        
+        if keys[self.controls[2]]:
+            if self.can_fly:
+                self.rect.y += self.y_fly_velocity * dt
 
         if keys[self.controls[3]] and not keys[self.controls[1]]:
             if self.rect.right <= position_x(100):
@@ -87,11 +108,11 @@ class Bombardiro(Character):
             self.basic_skill()
         self.skill("basic_skill")
 
-        if keys[self.controls[5]] and current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
-            self.doing_elemental_skill = True
-            self.elemental_skill_last_time = current_time
-            self.elemental_skill()
-        self.skill("elemental_skill")
+        if keys[self.controls[5]]: 
+            if current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
+                self.doing_elemental_skill = True
+                self.elemental_skill_last_time = current_time
+                self.elemental_skill()
 
         if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown:
             self.doing_ultimate_skill = True
@@ -106,7 +127,7 @@ class Bombardiro(Character):
             self.y_velocity += self.gravity * dt
             self.rect.y += self.y_velocity * dt
 
-        if self.rect.bottom >= self.ground_y and not self.can_fly:
+        if self.rect.bottom >= self.ground_y:
             self.rect.bottom = self.ground_y
             self.y_velocity = 0
         
@@ -116,38 +137,39 @@ class Bombardiro(Character):
                 self.x_velocity_debuffed = False
                 self.x_velocity_debuffed_time = 0
                 self.x_velocity = 800
-                return
-            
-        # --------------------------------------------------
-
-        if self.missile:
-            if self.missile.status:
-                self.missile.move(dt)
         
         if self.can_fly:
             self.flying_time += dt
             if self.flying_time >= self.fly_time:
                 self.can_fly = False
                 self.flying_time = 0
-            else:
-                self.rect.y -= 1000 * dt
 
-    def draw(self, screen):
-        super().draw(screen)
         if self.missile:
             if self.missile.status:
-                self.missile.draw(screen)
-        pygame.draw.rect(screen, (0, 0, 0), self.rect)
+                self.missile.move(dt)
+
+        if self.missiles:
+            for missile in self.missiles:
+                if missile.status:
+                    missile.move(dt)
+
+            self.missiles = [missile for missile in self.missiles if missile.status]
 
     def basic_skill(self):
-        self.missile = Proyectile(self.rect.center, size(15, 15), size(7, 7), 1000, 3, self.enemy, damage=10, 
+        self.missile = Proyectile(self.rect.center, size(15, 15), size(7, 7), 1000, 3, self.enemy, damage=7, 
                                    animation_path="assets/images/fight/bombardiro_crocodilo/missile_{}.png", animation_cooldown=200, sprites_count=4, rotate=True)
     
     def elemental_skill(self):
         self.can_fly = True
     
     def ultimate_skill(self):
-        pass
+        pos = [0, 0]
+        missiles_num = randint(5, 10)
+        for i in range(missiles_num):
+            missile = Proyectile(pos, size(15, 15), size(7, 7), 500, 2, self.enemy, damage=5, 
+                                   animation_path="assets/images/fight/bombardiro_crocodilo/missile_{}.png", animation_cooldown=200, sprites_count=4, rotate=True)
+            self.missiles.append(missile)
+            pos[0] += position_x(100) // missiles_num
 
     def draw(self, screen):
         img_rect = self.current_sprite.get_rect()
@@ -156,3 +178,7 @@ class Bombardiro(Character):
         if self.missile:
             if self.missile.status:
                 self.missile.draw(screen)
+        if self.missiles:
+            for missile in self.missiles:
+                if missile.status:
+                    missile.draw(screen)

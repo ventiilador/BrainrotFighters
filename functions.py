@@ -2,7 +2,7 @@ import json
 import pygame
 
 """
-In this module i create the functions that i need usually
+In this module I create the functions that i usually need
 """
 
 def position(x, y):

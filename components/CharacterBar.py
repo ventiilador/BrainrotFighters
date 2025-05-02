@@ -3,8 +3,12 @@ from functions import size, position_x, position_y, size_x, render_text_with_bor
 
 class CharacterBar:
     def __init__(self, character, position):
+        # We associate the component with the character
         self.character = character
 
+        """
+        This function creates the subcomponents
+        """
         self.position = position
 
         self.background_bar = pygame.transform.scale(pygame.image.load("assets/images/components/character_bar_background.png"), size(30, 25))
@@ -33,10 +37,8 @@ class CharacterBar:
 
         if self.position[0] <= position_x(50):
             character_image_rect_x = self.background_bar_rect.left - position_x(1)
-
         else:
             character_image_rect_x = self.background_bar_rect.right + position_x(1)
-
 
         self.character_image = self.character.profile_image
         self.character_image_rect = self.character_image.get_rect()
@@ -46,6 +48,9 @@ class CharacterBar:
         
 
     def update(self, dt):
+        """
+        This function updates the healthbar status
+        """
         if self.character.health >= 75:
             self.color = (0, 255, 0)
         elif self.character.health >= 50:
@@ -61,14 +66,19 @@ class CharacterBar:
         
 
     def draw(self, screen):
+        """
+        This function draws the component in the screen
+        """
         screen.blit(self.background_bar, self.background_bar_rect)
         pygame.draw.rect(screen, self.color, self.health_rect, border_radius=2)
         screen.blit(self.character_image, self.character_image_rect)
-        self.draw_skills(screen, "basic")
-        self.draw_skills(screen, "elemental")
-        self.draw_skills(screen, "ultimate")
+        for skill in ["basic", "elemental", "ultimate"]:
+            self.draw_skills(screen, skill)
     
     def draw_skills(self, screen, skill_name):
+        """
+        This function draws the skills / cooldowns
+        """
         skill_time_rest = getattr(self.character, f"{skill_name}_skill_objective_ticks") - pygame.time.get_ticks()
         skill_img = getattr(self, f"{skill_name}_skill_img")
         skill_img_gray = getattr(self, f"{skill_name}_skill_img_gray")

@@ -8,12 +8,15 @@ class Tralalero(Character):
     def __init__(self, fight, character_name, controls):
         self.sprite_size = size(20, 25)
 
+        """
+        Here we load assets and components / control
+        """
+
         self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/marco_tralalalero.png").convert(), size(7, 12))
         self.basic_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_basic_skill_image.png"), size(10, 15))
         self.elemental_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_elemental_skill_image.png"), size(7, 10))
         self.ultimate_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_ultimate_skill_image.png"), size(7, 10))
 
-        # Load character sprites
         self.left_animation_sprites = load_sprites(
             "assets/images/fight/tralalero_tralala/tralalero_left_{}.png", 3, self.sprite_size)
         self.right_animation_sprites = load_sprites(
@@ -42,7 +45,8 @@ class Tralalero(Character):
             "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.sprite_size
         )
 
-        # Indexs
+
+        # Index
         self.current_walk_sprite = 0
         self.current_idle_sprite = 0
         self.current_basic_skill_sprite = 0
@@ -55,8 +59,15 @@ class Tralalero(Character):
         # Ultimate skill
         self.wave = None
 
+        # Hitbox size
         self.size = size(10, 15)
         super().__init__(fight, character_name, controls)
+
+        # 0 cooldowns
+        current_time = pygame.time.get_ticks()
+        self.basic_skill_last_time = current_time - self.basic_skill_cooldown
+        self.elemental_skill_last_time = current_time - self.elemental_skill_cooldown
+        self.ultimate_skill_last_time = current_time - self.ultimate_skill_cooldown
 
         # Set initial sprite
         self.current_sprite = self.left_animation_sprites[self.current_walk_sprite]
@@ -66,10 +77,14 @@ class Tralalero(Character):
         for bubble in self.bubbles:
             if bubble.status:
                 bubble.move(dt)
-        
+
+        self.bubbles = [b for b in self.bubbles if b.status]
+
         if self.wave:
             if self.wave.status:
                 self.wave.move(dt)
+            else:
+                self.wave = None
     
     def basic_skill(self):
         if self.rect.colliderect(self.enemy.rect):

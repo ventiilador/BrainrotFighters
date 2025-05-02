@@ -7,9 +7,9 @@ class MapRandomizer:
         # We associate the game
         self.game = game
 
-        # Control variables +
+        # Control variables
         self.status = False
-        self.velocity = 0 #randint(3000, 5000)
+        self.velocity = 0 # randint(3000, 5000)
         self.winner_map = None
         self.show_message = False
         self.message_started = False
@@ -38,7 +38,7 @@ class MapRandomizer:
         self.maps = []
         x = position_x(100) - size_x(50) // 2
         for _ in range(100):
-            map = self.map_images[0]#randint(0, len(self.map_images) - 1)]
+            map = self.map_images[randint(0, len(self.map_images) - 1)]
             image, title = map[0], map[1]
             rect = image.get_rect()
             rect.center = (x, position_y(50))
@@ -58,21 +58,22 @@ class MapRandomizer:
         """
         This function manages the principal logic
         """
+        # We check de collision of the maps with the cursor (it makes a noise)
         for i, map_data in enumerate(self.maps):
             map_rect = map_data[1]
             collision = self.cursor_rect.colliderect(map_rect)
 
             if not self.maps_colliding[i] and collision:
                 self.game.sound_manager.play_sound("Roulette")
-            elif self.maps_colliding[i] and not collision:
-                self.game.sound_manager.play_sound("Roulette")
 
             self.maps_colliding[i] = collision
         
+        # We check the result if the wheel stops spinning
         if self.velocity <= 0 and not self.result_checked:
             self.check_result()
             self.result_checked = True
         
+        # We show the winner map missage
         if self.winner_map and not self.message_started:
             self.message = self.font.render(f"Winner map: {self.winner_map}", True, (255, 255, 0))
             self.message_rect = self.message.get_rect()
@@ -81,6 +82,7 @@ class MapRandomizer:
             self.start_time = pygame.time.get_ticks()
             self.message_started = True
         
+        # We kill this window when the message ends
         if self.show_message and pygame.time.get_ticks() - self.start_time > 3000:
             self.status = False
             self.game.character_selection.status = True
@@ -92,29 +94,29 @@ class MapRandomizer:
         """
         This function check which map is the selected
         """
-        distances = [(abs(self.cursor_rect.center[0] - map[1].center[0]), map[2]) for map in self.maps]
-        self.winner_map = min(distances, key=lambda x: x[0])[1]
+        distances = [(map[0] , abs(self.cursor_rect.center[0] - map[1].center[0]), map[2]) for map in self.maps]
+        winner_tuple = min(distances, key=lambda x: x[1])
+        self.winner_map = winner_tuple[2]
+        self.winner_map_image = winner_tuple[0]
+        self.winner_map_image_usable = winner_tuple[0]
         self.game.sound_manager.play_sound("MapWinner")
-        for image in self.map_images:
-            if image[1] == self.winner_map:
-                self.winner_map_image = image[0]
-                self.winner_map_image_usable = image [0]
     
         
     def move(self, dt):
         """
         This function manages the animations / movement
         """
+        # We move and rest velocity
         if self.velocity > 0:  
             for i in range(len(self.maps)):
                 self.maps[i][1].x += self.velocity * dt
             self.velocity -= 550 * dt
+        # This animate the winner map window when there's a winner
         if self.winner_map:
             if self.winner_map_rect.width < size_x(50) or self.winner_map_rect.height < size_y(50):
                 center = self.winner_map_rect.center
-                max_width, max_height = size(50, 50)
-                new_width = min(self.winner_map_rect.width + size_x(100) * dt, max_width)
-                new_height = min(self.winner_map_rect.height + size_y(100) * dt, max_height)
+                new_width = self.winner_map_rect.width + size_x(100) * dt
+                new_height = self.winner_map_rect.height + size_y(100) * dt
                 self.winner_map_image_usable = pygame.transform.scale(self.winner_map_image, (int(new_width), int(new_height)))
                 self.winner_map_rect = self.winner_map_image_usable.get_rect()
                 self.winner_map_rect.center = center
