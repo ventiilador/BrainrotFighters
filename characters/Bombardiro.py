@@ -113,6 +113,7 @@ class Bombardiro(Character):
                 self.doing_elemental_skill = True
                 self.elemental_skill_last_time = current_time
                 self.elemental_skill()
+        self.skill("elemental_skill")
 
         if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown:
             self.doing_ultimate_skill = True
@@ -120,7 +121,8 @@ class Bombardiro(Character):
             self.ultimate_skill()
         self.skill("ultimate_skill")
         
-        if self.rect.bottom >= self.ground_y and not keys[self.controls[1]] and not keys[self.controls[3]] and not self.doing_basic_skill and not self.doing_elemental_skill:
+        if (self.rect.bottom >= self.ground_y and not keys[self.controls[1]] and not keys[self.controls[3]] and
+             not self.doing_basic_skill and not self.doing_elemental_skill and not self.doing_ultimate_skill):
             self.idle_animation()
 
         if (self.rect.bottom < self.ground_y or self.y_velocity < 0) and not self.can_fly:
