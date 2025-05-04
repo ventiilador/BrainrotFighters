@@ -13,7 +13,7 @@ class Tralalero(Character):
         """
 
         self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/marco_tralalalero.png").convert(), size(7, 12))
-        self.basic_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_basic_skill_image.png"), size(10, 15))
+        self.basic_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_basic_skill_image.png"), size(7, 10))
         self.elemental_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_elemental_skill_image.png"), size(7, 10))
         self.ultimate_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_ultimate_skill_image.png"), size(7, 10))
 
@@ -53,15 +53,15 @@ class Tralalero(Character):
         self.current_elemental_skill_sprite = 0
         self.current_ultimate_skill_sprite = 0
 
+        # Hitbox size
+        self.size = size(10, 15)
+        super().__init__(fight, character_name, controls)
+
         # Elemental skill
         self.bubbles = []
 
         # Ultimate skill
         self.wave = None
-
-        # Hitbox size
-        self.size = size(10, 15)
-        super().__init__(fight, character_name, controls)
 
         # 0 cooldowns
         current_time = pygame.time.get_ticks()

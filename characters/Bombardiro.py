@@ -8,10 +8,11 @@ class Bombardiro(Character):
     def __init__(self, fight, character_name, controls):
         self.sprite_size = size(25, 20)
 
-        self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/marco_tralalalero.png").convert(), size(7, 12))
-        self.basic_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_basic_skill_image.png"), size(10, 15))
-        self.elemental_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_elemental_skill_image.png"), size(7, 10))
-        self.ultimate_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_ultimate_skill_image.png"), size(7, 10))
+        # ASIGNARRRR!!!
+        self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/marco_bombardiro.png").convert(), size(7, 12))
+        self.basic_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/bombardiro_basic_skill_image.png"), size(7, 10))
+        self.elemental_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/bombardiro_elemental_skill_image.png"), size(7, 10))
+        self.ultimate_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/bombardiro_ultimate_skill_image.png"), size(7, 10))
 
         # Load character sprites
         self.left_animation_sprites = load_sprites(
@@ -30,17 +31,18 @@ class Bombardiro(Character):
         self.basic_skill_right_animation = load_sprites(
             "assets/images/fight/bombardiro_crocodilo/bombardiro_basic_skill_right_{}.png", 3, self.sprite_size
         )
+        # ASIGNAR SUS SPRITES
         self.elemental_skill_left_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 5, self.sprite_size
+            "assets/images/fight/bombardiro_crocodilo/bombardiro_elemental_skill_left_{}.png", 3, self.sprite_size
         )
         self.elemental_skill_right_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.sprite_size
+            "assets/images/fight/bombardiro_crocodilo/bombardiro_elemental_skill_right_{}.png", 3, self.sprite_size
         )
         self.ultimate_skill_left_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_left_{}.png", 5, self.sprite_size
+            "assets/images/fight/bombardiro_crocodilo/bombardiro_ultimate_skill_left_{}.png", 5, self.sprite_size
         )
         self.ultimate_skill_right_animation = load_sprites(
-            "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.sprite_size
+            "assets/images/fight/bombardiro_crocodilo/bombardiro_ultimate_skill_right_{}.png", 5, self.sprite_size
         )
 
         # Indexs
@@ -49,6 +51,10 @@ class Bombardiro(Character):
         self.current_basic_skill_sprite = 0
         self.current_elemental_skill_sprite = 0
         self.current_ultimate_skill_sprite = 0
+
+        # Hitbox_size
+        self.size = size(20, 15)
+        super().__init__(fight, character_name, controls)
 
         # Basic skill
         self.missile = None
@@ -62,10 +68,7 @@ class Bombardiro(Character):
 
         # Ultimate skill
         self.missiles = []
-
-        # Hitbox_size
-        self.size = size(20, 15)
-        super().__init__(fight, character_name, controls)
+        self.ultimate_skill_cooldown = 20000
 
         # 0 cooldowns
         current_time = pygame.time.get_ticks()
