@@ -33,10 +33,10 @@ class Tumtum(Character):
         )
         # ASIGNAR SUS SPRITES
         self.elemental_skill_left_animation = load_sprites(
-            "assets/images/fight/bombardiro_crocodilo/bombardiro_elemental_skill_left_{}.png", 3, self.sprite_size
+            "assets/images/fight/tumtum_sahur/tum_tum_elemental_skill_left_{}.png", 3, self.sprite_size
         )
         self.elemental_skill_right_animation = load_sprites(
-            "assets/images/fight/bombardiro_crocodilo/bombardiro_elemental_skill_right_{}.png", 3, self.sprite_size
+            "assets/images/fight/tumtum_sahur/tum_tum_elemental_skill_right_{}.png", 3, self.sprite_size
         )
         self.ultimate_skill_left_animation = load_sprites(
             "assets/images/fight/bombardiro_crocodilo/bombardiro_ultimate_skill_left_{}.png", 5, self.sprite_size
@@ -85,16 +85,18 @@ class Tumtum(Character):
             self.enemy.health -= self.basic_skill_damage
     
     def elemental_skill(self):
-        self.stick = Proyectile(self.rect.center, size(10, 15), size(6, 6), 1000, 3, self.enemy, damage=10, 
-                    animation_path="assets/images/fight/tumtum_sahur/stick_{}.png", animation_cooldown=200, sprites_count=3, rotate=True)
+        pos = list(self.rect.center)
+        pos[1] -= position_y(10)
+        self.stick = Proyectile(pos, size(10, 15), size(6, 6), 600, 3, self.enemy, damage=10, 
+                    animation_path="assets/images/fight/tumtum_sahur/stick_{}.png", animation_cooldown=100, sprites_count=3, rotate=True)
     
     def ultimate_skill(self):
         pass
 
     def draw(self, screen):
-        img_rect = self.current_sprite.get_rect()
-        img_rect.center = self.rect.center
-        screen.blit(self.current_sprite, img_rect)
         if self.stick:
             if self.stick.status:
                 self.stick.draw(screen)
+        img_rect = self.current_sprite.get_rect()
+        img_rect.center = self.rect.center
+        screen.blit(self.current_sprite, img_rect)
