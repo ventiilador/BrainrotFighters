@@ -25,6 +25,7 @@ class MapRandomizer:
         """
         This function creates all the components in the Map Randomizer
         """
+        # Load and scale background and UI images
         self.background_image = pygame.transform.scale(pygame.image.load("assets/images/main_menu/main_menu_background.png").convert(), size(100,100))
         maps_background_size = size(100, 60)
         self.maps_background = pygame.rect.Rect(0, 0, maps_background_size[0], maps_background_size[1])
@@ -32,6 +33,8 @@ class MapRandomizer:
         self.title_image = pygame.transform.scale(pygame.image.load("assets/images/map_randomizer/title.png").convert_alpha(), size(25, 20))
         self.title_rect = self.title_image.get_rect()
         self.title_rect.center = position(50, 10)
+
+        # Load and position maps for the roulette
         map_size = size(50,50)
         self.map_images = [[pygame.transform.scale(pygame.image.load("assets/images/map_randomizer/venice.png").convert(), map_size),"venice"],
                            [pygame.transform.scale(pygame.image.load("assets/images/map_randomizer/florence.png").convert(), map_size),"florence"]]
@@ -45,6 +48,8 @@ class MapRandomizer:
             self.maps.append([image, rect, title])
             x -= size_x(52)
         self.maps_colliding = [False] * len(self.maps)
+
+        # Load cursor and font
         self.cursor_image = pygame.transform.scale(pygame.image.load("assets/images/map_randomizer/cursor.png"), size(10, 20))
         self.cursor_rect = self.cursor_image.get_rect()
         self.cursor_rect.center = position(50, 80)
@@ -58,7 +63,7 @@ class MapRandomizer:
         """
         This function manages the principal logic
         """
-        # We check de collision of the maps with the cursor (it makes a noise)
+        # We check the collision of the maps with the cursor (it makes a noise)
         for i, map_data in enumerate(self.maps):
             map_rect = map_data[1]
             collision = self.cursor_rect.colliderect(map_rect)
@@ -73,7 +78,7 @@ class MapRandomizer:
             self.check_result()
             self.result_checked = True
         
-        # We show the winner map missage
+        # We show the winner map message
         if self.winner_map and not self.message_started:
             self.message = self.font.render(f"Winner map: {self.winner_map}", True, (255, 255, 0))
             self.message_rect = self.message.get_rect()
@@ -89,11 +94,11 @@ class MapRandomizer:
             self.game.fight.map = self.winner_map_image_usable
             self.game.fight.create_display_components()
 
-
     def check_result(self):
         """
-        This function check which map is the selected
+        This function checks which map is the selected
         """
+        # Find the map closest to the center of the cursor
         distances = [(map[0] , abs(self.cursor_rect.center[0] - map[1].center[0]), map[2]) for map in self.maps]
         winner_tuple = min(distances, key=lambda x: x[1])
         self.winner_map = winner_tuple[2]
@@ -101,17 +106,17 @@ class MapRandomizer:
         self.winner_map_image_usable = winner_tuple[0]
         self.game.sound_manager.play_sound("MapWinner")
     
-        
     def move(self, dt):
         """
         This function manages the animations / movement
         """
-        # We move and rest velocity
+        # We move the maps and reduce velocity
         if self.velocity > 0:  
             for i in range(len(self.maps)):
                 self.maps[i][1].x += self.velocity * dt
             self.velocity -= 550 * dt
-        # This animate the winner map window when there's a winner
+
+        # This animates the winner map window when there's a winner
         if self.winner_map:
             if self.winner_map_rect.width < size_x(50) or self.winner_map_rect.height < size_y(50):
                 center = self.winner_map_rect.center
@@ -121,11 +126,11 @@ class MapRandomizer:
                 self.winner_map_rect = self.winner_map_image_usable.get_rect()
                 self.winner_map_rect.center = center
 
-
     def draw(self, screen):
         """
         This function draws all the components
         """
+        # Draw background, UI elements, maps, cursor, winner image and message
         screen.blit(self.background_image, (0, 0))
         pygame.draw.rect(screen, (25, 25, 25), self.maps_background)
         pygame.draw.rect(screen, (255, 180, 0), self.title_rect)

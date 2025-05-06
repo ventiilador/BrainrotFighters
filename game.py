@@ -10,7 +10,7 @@ from SoundManager import SoundManager
 
 class Game:
     def __init__(self):
-        # Pygame start / Window creation
+        # Initialize Pygame and create the game window
         pygame.init()
         pygame.display.set_caption("Brainrot Fighters")
         if get_fullscreen():
@@ -23,7 +23,7 @@ class Game:
         self.load_game()
         self.game_started = False
 
-        # Fps / bucle Conditionals
+        # Initialize frame rate and game loop control variables
         self.clock = pygame.time.Clock()
         self.running = True
         self.fps = get_fps()
@@ -32,11 +32,11 @@ class Game:
         self.last_update_display_time = 0
 
     def load_game(self):
-        # Creation of sound manager
+        # Load the sound manager
         self.sound_manager = SoundManager()
         print("🔊 Sound Manager Loaded Successfully!")
 
-        # Creation of the scenes
+        # Load all the game scenes
         self.main_menu = MainMenu(self)
         print("📋 Main Menu Loaded Successfully!")
         self.config_menu = ConfigMenu(self)
@@ -54,6 +54,7 @@ class Game:
         """
         current_time = pygame.time.get_ticks()
         if current_time - self.last_update_display_time > 300:
+            # Reinitialize the display with the updated resolution or fullscreen settings
             pygame.display.quit()
             pygame.display.init()
             if get_fullscreen():
@@ -61,6 +62,7 @@ class Game:
             else:
                 self.screen = pygame.display.set_mode(tuple(get_resolution()), pygame.SCALED, 32)
             
+            # Recreate display components for all scenes
             self.main_menu.create_display_components()
             self.config_menu.create_display_components()
             self.map_randomizer.create_display_components()
@@ -81,11 +83,13 @@ class Game:
             delta_time = (current_time - last_time) / 1000
             last_time = current_time
 
+            # Handle window events (e.g., closing the window)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     print("❌ Quiting The Game...")
                     self.running = False
             
+            # Determine which scene is currently active and update it
             if self.main_menu.status:
                 self.main_menu.manage_events()
                 self.main_menu.draw(self.screen)
@@ -109,15 +113,19 @@ class Game:
                     self.fight.draw(self.screen)
 
             else:
+                # If no scene is active, fill the screen with white
                 self.screen.fill((255,255,255))
             
+            # If FPS display is enabled, render and display it
             if self.show_fps:
                 fps = int(self.clock.get_fps())
                 fps_text = render_text_with_border(f"FPS: {fps}", self.fps_font, (255, 215, 0), (0, 0, 0))
                 self.screen.blit(fps_text, (10, 10))
                 
+            # Update the full display surface to the screen
             pygame.display.flip()
 
+            # Control the frame rate
             self.clock.tick(self.fps)
 
 if __name__ == "__main__":
