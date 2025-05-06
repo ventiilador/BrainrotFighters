@@ -20,6 +20,10 @@ class Game:
         
         print("🟡 Game Window Created Successfully!")
 
+        # Load the sound manager
+        self.sound_manager = SoundManager()
+        print("🔊 Sound Manager Loaded Successfully!")
+
         self.load_game()
         self.game_started = False
 
@@ -32,10 +36,7 @@ class Game:
         self.last_update_display_time = 0
 
     def load_game(self):
-        # Load the sound manager
-        self.sound_manager = SoundManager()
-        print("🔊 Sound Manager Loaded Successfully!")
-
+        self.sound_manager.stop_all()
         # Load all the game scenes
         self.main_menu = MainMenu(self)
         print("📋 Main Menu Loaded Successfully!")
