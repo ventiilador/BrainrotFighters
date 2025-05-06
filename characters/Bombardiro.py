@@ -5,11 +5,11 @@ from functions import load_sprites, size, position, position_x, position_y, size
 from characters.Projectile import Proyectile
 
 class Bombardiro(Character):
-    def __init__(self, fight, character_name, controls):
+    def __init__(self, fight, controls, pos):
         self.sprite_size = size(25, 20)
 
         # ASIGNARRRR!!!
-        self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/marco_bombardiro.png").convert(), size(7, 12))
+        self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/marco_bombardiro.png").convert_alpha(), size(7, 12))
         self.basic_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/bombardiro_basic_skill_image.png"), size(7, 10))
         self.elemental_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/bombardiro_elemental_skill_image.png"), size(7, 10))
         self.ultimate_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/bombardiro_crocodilo/bombardiro_ultimate_skill_image.png"), size(7, 10))
@@ -54,10 +54,15 @@ class Bombardiro(Character):
 
         # Hitbox_size
         self.size = size(20, 15)
-        super().__init__(fight, character_name, controls)
+        super().__init__(fight, controls, pos)
+
+        # Sounds
+        self.fight.game.sound_manager.load_sound("BombardiroExplosion", "assets/sounds/bombardiro_missile_explosion.mp3")
+        self.fight.game.sound_manager.load_sound("BombardiroLaunch", "assets/sounds/bombardiro_missile_launch.mp3")
 
         # Basic skill
         self.missile = None
+        self.basic_skill_damage = 5
 
         # Elemental skill
         self.fly_time = 7
@@ -69,6 +74,7 @@ class Bombardiro(Character):
         # Ultimate skill
         self.missiles = []
         self.ultimate_skill_cooldown = 20000
+        self.ultimate_skill_damage = 4
 
         # 0 cooldowns
         current_time = pygame.time.get_ticks()
@@ -105,20 +111,20 @@ class Bombardiro(Character):
             self.last_direction = "right"
             self.right_animation()
         
-        if keys[self.controls[4]] and current_time - self.basic_skill_last_time > self.basic_skill_cooldown:
+        if keys[self.controls[4]] and current_time - self.basic_skill_last_time > self.basic_skill_cooldown and not (self.doing_elemental_skill or self.doing_ultimate_skill):
             self.doing_basic_skill = True
             self.basic_skill_last_time = current_time
             self.basic_skill()
         self.skill("basic_skill")
 
         if keys[self.controls[5]]: 
-            if current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
+            if current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown and not (self.doing_basic_skill or self.doing_ultimate_skill):
                 self.doing_elemental_skill = True
                 self.elemental_skill_last_time = current_time
                 self.elemental_skill()
         self.skill("elemental_skill")
 
-        if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown:
+        if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown and not (self.doing_basic_skill or self.doing_elemental_skill):
             self.doing_ultimate_skill = True
             self.ultimate_skill_last_time = current_time
             self.ultimate_skill()
@@ -161,18 +167,23 @@ class Bombardiro(Character):
             self.missiles = [missile for missile in self.missiles if missile.status]
 
     def basic_skill(self):
-        self.missile = Proyectile(self.rect.center, size(15, 15), size(7, 7), 1000, 3, self.enemy, damage=7, 
-                                   animation_path="assets/images/fight/bombardiro_crocodilo/missile_{}.png", animation_cooldown=200, sprites_count=4, rotate=True)
+        self.fight.game.sound_manager.play_sound("BombardiroLaunch")
+        self.missile = Proyectile(self.rect.center, size(15, 15), size(7, 7), 1000, 3, self.enemy, damage=self.basic_skill_damage, 
+                                   animation_path="assets/images/fight/bombardiro_crocodilo/missile_{}.png", animation_cooldown=200,
+                                     sprites_count=4, rotate=True, collision_sound="BombardiroExplosion", sound_manager=self.fight.game.sound_manager)
     
     def elemental_skill(self):
         self.can_fly = True
+        self.fight.game.sound_manager.play_sound("BombardiroLaunch")
     
     def ultimate_skill(self):
         pos = [0, 0]
         missiles_num = randint(5, 10)
         for i in range(missiles_num):
-            missile = Proyectile(pos, size(15, 15), size(7, 7), 500, 2, self.enemy, damage=5, 
-                                   animation_path="assets/images/fight/bombardiro_crocodilo/missile_{}.png", animation_cooldown=200, sprites_count=4, rotate=True)
+            self.fight.game.sound_manager.play_sound("BombardiroLaunch")
+            missile = Proyectile(pos, size(15, 15), size(7, 7), 500, 2, self.enemy, damage=self.ultimate_skill_damage, 
+                                   animation_path="assets/images/fight/bombardiro_crocodilo/missile_{}.png", animation_cooldown=200,
+                                     sprites_count=4, rotate=True, collision_sound="BombardiroExplosion", sound_manager=self.fight.game.sound_manager)
             self.missiles.append(missile)
             pos[0] += position_x(100) // missiles_num
 

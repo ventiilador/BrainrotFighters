@@ -5,14 +5,14 @@ from functions import load_sprites, size, position_x, position_y
 from random import randint
 
 class Tralalero(Character):
-    def __init__(self, fight, character_name, controls):
+    def __init__(self, fight, controls, pos):
         self.sprite_size = size(20, 25)
 
         """
         Here we load assets and components / control
         """
 
-        self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/marco_tralalalero.png").convert(), size(7, 12))
+        self.profile_image = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/marco_tralalalero.png").convert_alpha(), size(7, 12))
         self.basic_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_basic_skill_image.png"), size(7, 10))
         self.elemental_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_elemental_skill_image.png"), size(7, 10))
         self.ultimate_skill_img = pygame.transform.scale(pygame.image.load("assets/images/fight/tralalero_tralala/tralalero_ultimate_skill_image.png"), size(7, 10))
@@ -45,7 +45,6 @@ class Tralalero(Character):
             "assets/images/fight/tralalero_tralala/tralalero_elemental_skill_right_{}.png", 5, self.sprite_size
         )
 
-
         # Index
         self.current_walk_sprite = 0
         self.current_idle_sprite = 0
@@ -55,13 +54,20 @@ class Tralalero(Character):
 
         # Hitbox size
         self.size = size(10, 15)
-        super().__init__(fight, character_name, controls)
+        super().__init__(fight, controls, pos)
 
+        # Sounds
+        self.fight.game.sound_manager.load_sound("TralaleroBite", "assets/sounds/tralalero_bite.mp3")
+        self.fight.game.sound_manager.load_sound("TralaleroBubbles", "assets/sounds/tralalero_bubbles.mp3")
+        self.fight.game.sound_manager.load_sound("TralaleroWave", "assets/sounds/tralalero_wave.mp3")
+        
         # Elemental skill
         self.bubbles = []
+        self.elemental_skill_damage = 5
 
         # Ultimate skill
         self.wave = None
+        self.ultimate_skill_damage = 20
 
         # 0 cooldowns
         current_time = pygame.time.get_ticks()
@@ -88,19 +94,22 @@ class Tralalero(Character):
     
     def basic_skill(self):
         if self.rect.colliderect(self.enemy.rect):
-            self.enemy.health -= self.basic_skill_damage
+            self.enemy.deal_damage(self.basic_skill_damage)
+        self.fight.game.sound_manager.play_sound("TralaleroBite")
     
     def elemental_skill(self):
         for i in range(randint(2, 4)):
             bubble = Proyectile((randint(self.rect.center[0] - position_x(5), self.rect.center[0] + position_x(5)), randint(self.rect.center[1] - position_y(5), self.rect.center[1] + position_y(5))),
-                                size(3, 5), size(3, 4), 300, 4, self.enemy, damage=10, animation_path="assets/images/fight/tralalero_tralala/bubble_{}.png", animation_cooldown=200, sprites_count=1)
+                                size(3, 5), size(3, 4), 300, 4, self.enemy, damage=self.elemental_skill_damage, animation_path="assets/images/fight/tralalero_tralala/bubble_{}.png", animation_cooldown=200, sprites_count=1)
             self.bubbles.append(bubble)
+        self.fight.game.sound_manager.play_sound("TralaleroBubbles")
     
     def ultimate_skill(self):
-        objective = (self.rect.center[0] - position_x(70), self.rect.center[1]) if self.last_direction == "left" else (self.rect.center[0] + position_x(40), self.rect.center[1])
-        self.wave = Proyectile(self.rect.topleft, size(20, 25), size(16, 23), 300, 6, self.enemy, damage=20, debuff=("x_velocity", 400, 3), objective=objective,
+        objective = (self.rect.center[0] - position_x(55), self.rect.center[1]) if self.last_direction == "left" else (self.rect.center[0] + position_x(55), self.rect.center[1])
+        self.wave = Proyectile(self.rect.topleft, size(20, 25), size(16, 23), 300, 10, self.enemy, damage=self.ultimate_skill_damage, debuff=("x_velocity", 400, 3), objective=objective,
                                 animation_path="assets/images/fight/tralalero_tralala/"+self.last_direction+"_wave_{}.png", animation_cooldown=500, sprites_count=3)
-    
+        self.fight.game.sound_manager.play_sound("TralaleroWave")
+
     def draw(self, screen):
         img_rect = self.current_sprite.get_rect()
         img_rect.center = self.rect.center

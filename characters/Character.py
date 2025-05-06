@@ -2,13 +2,12 @@ import pygame
 from functions import size, position_y, position_x, load_sprites, size_x, size_y
 
 class Character:
-    def __init__(self, fight, player_name, controls: tuple):
+    def __init__(self, fight, controls: tuple, pos):
         self.fight = fight
-        self.player_name = player_name
 
         self.controls = controls
 
-        self.rect = pygame.rect.Rect(position_x(90), 0, self.size[0], self.size[1])
+        self.rect = pygame.rect.Rect(pos[0], pos[1], self.size[0], self.size[1])
 
         # Movement physics
         self.gravity = 2200
@@ -52,6 +51,7 @@ class Character:
 
         # Stats
         self.health = 100
+        self.armor = 1
     
     def set_enemy(self, enemy):
         self.enemy = enemy
@@ -84,20 +84,20 @@ class Character:
             self.last_direction = "right"
             self.right_animation()
         
-        if keys[self.controls[4]] and current_time - self.basic_skill_last_time > self.basic_skill_cooldown:
+        if keys[self.controls[4]] and current_time - self.basic_skill_last_time > self.basic_skill_cooldown and not (self.doing_elemental_skill or self.doing_ultimate_skill):
             self.doing_basic_skill = True
             self.basic_skill_last_time = current_time
             self.basic_skill()
         self.skill("basic_skill")
 
         if keys[self.controls[5]]: 
-            if current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown:
+            if current_time - self.elemental_skill_last_time > self.elemental_skill_cooldown and not (self.doing_basic_skill or self.doing_ultimate_skill):
                 self.doing_elemental_skill = True
                 self.elemental_skill_last_time = current_time
                 self.elemental_skill()
         self.skill("elemental_skill")
 
-        if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown:
+        if keys[self.controls[6]] and current_time - self.ultimate_skill_last_time > self.ultimate_skill_cooldown and not (self.doing_basic_skill or self.doing_elemental_skill):
             self.doing_ultimate_skill = True
             self.ultimate_skill_last_time = current_time
             self.ultimate_skill()
@@ -172,6 +172,9 @@ class Character:
             setattr(self, attr, debff)
             setattr(self, attr+"_debuffed", True)
             setattr(self, attr+"_cooldown", time)
+    
+    def deal_damage(self, damage):
+        self.health -= damage * self.armor
 
     def draw(self, screen):
         pass

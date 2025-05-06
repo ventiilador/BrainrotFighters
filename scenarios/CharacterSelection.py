@@ -38,8 +38,8 @@ class CharacterSelection:
         self.player2_select_text = player_select_font.render("'O' to select", True, (0, 0, 0))
         self.player2_select_text_rect = self.player2_select_text.get_rect()
         self.player2_select_text_rect.center = position(75, 35)
-        self.character_selector_1 = CharacterSelector(self.game, position(25, 50), size(30, 15), 1, 4, (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_e))
-        self.character_selector_2 = CharacterSelector(self.game, position(75, 50), size(30, 15), 1, 4, (pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_o))
+        self.character_selector_1 = CharacterSelector(self.game, position(25, 50), size(38, 15), 1, 5, (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_e))
+        self.character_selector_2 = CharacterSelector(self.game, position(75, 50), size(38, 15), 1, 5, (pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_o))
         
 
     def draw(self, screen):
@@ -71,7 +71,7 @@ class CharacterSelection:
             self.music_played = True
         
         if self.character_selector_1.character_selected and self.character_selector_2.character_selected:
-            self.game.fight.create_characters(self.character_selector_1.get_character_name(), self.character_selector_2.get_character_name())
+            self.game.fight.create_characters((self.character_selector_1.get_character_name(), self.character_selector_2.get_character_name()))
             self.status = False
             self.game.fight.status = True
         

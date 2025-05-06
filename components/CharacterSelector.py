@@ -14,7 +14,8 @@ class CharacterSelector:
         self.slot_size = (size[0] // columns, size[1] // rows)
         self.slots = []
         self.characters = [[pygame.transform.scale(pygame.image.load("assets/images/character_selection/bombardiro_crocodilo.jpg"), self.slot_size), "bombardiro"], [pygame.transform.scale(pygame.image.load("assets/images/character_selection/br_patapim.jpg"), self.slot_size), "patapim"],
-                    [pygame.transform.scale(pygame.image.load("assets/images/character_selection/tralalero_tralala.jpg"), self.slot_size), "tralalero"], [pygame.transform.scale(pygame.image.load("assets/images/character_selection/tum_sahur.jpeg"), self.slot_size), "sahur"]]
+                    [pygame.transform.scale(pygame.image.load("assets/images/character_selection/tralalero_tralala.jpg"), self.slot_size), "tralalero"], [pygame.transform.scale(pygame.image.load("assets/images/character_selection/tung_sahur.jpeg"), self.slot_size), "tungtung"],
+                    [pygame.transform.scale(pygame.image.load("assets/images/character_selection/lirili_larila.jpg"), self.slot_size), "lirililarila"]]
         counter = 0
         for row in range(rows):
             for column in range(columns):

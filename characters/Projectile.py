@@ -5,7 +5,7 @@ from characters.Character import Character
 
 class Proyectile:
     def __init__(self, position, sprite_size, rect_size, speed, lifetime, 
-    enemy, objective=None, damage=0, debuff=(), animation_path=None, animation_cooldown=0, sprites_count=0, rotate=False):
+    enemy, objective=None, damage=0, debuff=(), animation_path=None, animation_cooldown=0, sprites_count=0, rotate=False, collision_sound=None, sound_manager=None):
         self.speed = speed
         self.objective = objective
         self.enemy = enemy
@@ -22,6 +22,8 @@ class Proyectile:
         self.animation_cooldown = animation_cooldown
         self.status = True
         self.angle = 0
+        self.collision_sound = collision_sound
+        self.sound_manager = sound_manager
     
     def move(self, dt):
         current_time = pygame.time.get_ticks()
@@ -31,9 +33,11 @@ class Proyectile:
             return
 
         if self.rect.colliderect(self.enemy.rect):
-            self.enemy.health -= self.damage
+            self.enemy.deal_damage(self.damage)
             if self.debuff_args:
                 self.enemy.debuff(*self.debuff_args)
+            if self.collision_sound and self.sound_manager:
+                self.sound_manager.play_sound(self.collision_sound)
             self.status = False
             return
 
@@ -73,3 +77,5 @@ class Proyectile:
         else:
             img_rect = self.animation_sprites[self.current_animation_sprite].get_rect(center=self.rect.center)
             screen.blit(self.animation_sprites[self.current_animation_sprite], img_rect)
+        
+        pygame.draw.rect(screen, (0,0,0), self.rect)
