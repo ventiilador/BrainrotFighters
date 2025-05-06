@@ -17,7 +17,6 @@ class ConfigMenu:
         """
         This function creates all the components in the config menu
         """
-        print(get_resolution())  # Print the current screen resolution
         background_image = pygame.image.load("assets/images/main_menu/main_menu_background.png").convert()
         # Load and convert the background image for the menu
         self.background_image = pygame.transform.scale(background_image, tuple(get_resolution()))

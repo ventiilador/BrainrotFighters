@@ -56,7 +56,7 @@ class Fight:
             for i in range(len(self.character_names)):
                 # Define control keys for each player
                 controls = (pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_u, pygame.K_o, pygame.K_p) if i else (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_q, pygame.K_e, pygame.K_r)
-                pos = position(80, 90) if i else position(10, 90)
+                pos = position(60, 90) if i else position(30, 90)
                 
                 # Assign player character based on name
                 if self.character_names[i] == "tralalero":

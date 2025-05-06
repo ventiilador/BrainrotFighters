@@ -3,11 +3,11 @@
         "SongsVolume": 0.0,
         "SoundsVolume": 0.875,
         "Resolution": [
-            1920,
-            1080
+            1280,
+            720
         ],
         "Fps": 60,
-        "Fullscreen": true,
+        "Fullscreen": false,
         "Showfps": true
     }
 }
