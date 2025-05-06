@@ -43,6 +43,7 @@ class MainMenu:
             self.game.sound_manager.stop_song("MainMenuSong")
             self.status = False
             self.game.map_randomizer.status = True
+            self.game.game_started = True
 
         if self.config_button.check_input():
             self.status = False

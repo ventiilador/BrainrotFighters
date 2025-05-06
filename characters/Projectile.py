@@ -77,5 +77,3 @@ class Proyectile:
         else:
             img_rect = self.animation_sprites[self.current_animation_sprite].get_rect(center=self.rect.center)
             screen.blit(self.animation_sprites[self.current_animation_sprite], img_rect)
-        
-        pygame.draw.rect(screen, (0,0,0), self.rect)

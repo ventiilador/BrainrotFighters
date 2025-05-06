@@ -13,9 +13,25 @@ class Game:
         # Pygame start / Window creation
         pygame.init()
         pygame.display.set_caption("Brainrot Fighters")
-        self.screen = pygame.display.set_mode(tuple(get_resolution()), pygame.FULLSCREEN) if get_fullscreen() else pygame.display.set_mode(tuple(get_resolution()))
+        if get_fullscreen():
+            self.screen = pygame.display.set_mode(tuple(get_resolution()), pygame.SCALED + pygame.NOFRAME + pygame.FULLSCREEN, 32)
+        else:
+            self.screen = pygame.display.set_mode(tuple(get_resolution()), pygame.SCALED, 32)
+        
         print("🟡 Game Window Created Successfully!")
 
+        self.load_game()
+        self.game_started = False
+
+        # Fps / bucle Conditionals
+        self.clock = pygame.time.Clock()
+        self.running = True
+        self.fps = get_fps()
+        self.show_fps = get_showfps()
+        self.fps_font = pygame.font.Font("assets/fonts/MonkeyLand.otf", 24)
+        self.last_update_display_time = 0
+
+    def load_game(self):
         # Creation of sound manager
         self.sound_manager = SoundManager()
         print("🔊 Sound Manager Loaded Successfully!")
@@ -31,14 +47,6 @@ class Game:
         print("🕴️  Character Selection Loaded Successfully!")
         self.fight = Fight(self)
         print("👾  Fight Loaded Successfully!")
-
-        # Fps / bucle Conditionals
-        self.clock = pygame.time.Clock()
-        self.running = True
-        self.fps = get_fps()
-        self.show_fps = get_showfps()
-        self.fps_font = pygame.font.Font("assets/fonts/MonkeyLand.otf", 24)
-        self.last_update_display_time = 0
     
     def update_display_components(self):
         """
@@ -51,13 +59,13 @@ class Game:
             if get_fullscreen():
                 self.screen = pygame.display.set_mode(tuple(get_resolution()), pygame.SCALED + pygame.NOFRAME + pygame.FULLSCREEN, 32)
             else:
-                self.screen = pygame.display.set_mode(tuple(get_resolution()), pygame.SCALED + pygame.RESIZABLE, 32)
+                self.screen = pygame.display.set_mode(tuple(get_resolution()), pygame.SCALED, 32)
             
             self.main_menu.create_display_components()
             self.config_menu.create_display_components()
             self.map_randomizer.create_display_components()
             self.character_selection.create_display_components()
-            self.character_selection.create_display_components()
+            self.fight.create_display_components()
             self.last_update_display_time = current_time
             print("🔁 Display Components Reloaded Successfully!")
     
@@ -97,7 +105,8 @@ class Game:
             
             elif self.fight.status:
                 self.fight.manage_events(delta_time)
-                self.fight.draw(self.screen)
+                if self.fight.status:
+                    self.fight.draw(self.screen)
 
             else:
                 self.screen.fill((255,255,255))

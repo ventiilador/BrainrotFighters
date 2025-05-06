@@ -17,6 +17,7 @@ class ConfigMenu:
         """
         This function creates all the components in the config menu
         """
+        print(get_resolution())
         background_image = pygame.image.load("assets/images/main_menu/main_menu_background.png").convert()
         self.background_image = pygame.transform.scale(background_image, tuple(get_resolution()))
         backplate_size = size(80, 98)
@@ -103,4 +104,7 @@ class ConfigMenu:
         self.showfps_checkbox.check_input()
         if self.return_button.check_input():
             self.status = False
-            self.game.main_menu.status = True
+            if self.game.game_started:
+                self.game.fight.status = True
+            else:
+                self.game.main_menu.status = True

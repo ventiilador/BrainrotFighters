@@ -71,7 +71,8 @@ class CharacterSelection:
             self.music_played = True
         
         if self.character_selector_1.character_selected and self.character_selector_2.character_selected:
-            self.game.fight.create_characters((self.character_selector_1.get_character_name(), self.character_selector_2.get_character_name()))
+            self.game.fight.set_character_names((self.character_selector_1.get_character_name(), self.character_selector_2.get_character_name()))
+            self.game.fight.create_display_components()
             self.status = False
             self.game.fight.status = True
         
