@@ -1,1 +1,10 @@
+# Ignorar carpetas de entorno virtual
 venv/
+.venv/
+env/
+
+# Ignorar todos los __pycache__ en cualquier carpeta
+__pycache__/
+
+# Ignorar todos los archivos .pyc en cualquier parte
+*.pyc
